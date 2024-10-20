@@ -11,29 +11,32 @@ class WhatsAppBotController extends Controller
 
     public function handleIncomingMessage(Request $request)
     {
-        $from = $request->input('From'); // Sender's number
-        $userMessage = trim($request->input('Body')); // Message content
+     
+    $from = $request->input('From'); // Sender's number
+    $userMessage = trim($request->input('Body')); // Message content
 
-        \Log::info("Received message from {$from}: {$userMessage}");
+    // Debugging: Log incoming message
+    \Log::info("Received message from {$from}: {$userMessage}");
 
-        // Initialize session data for the user
-        if (!isset($this->sessionData[$from])) {
-            $this->sessionData[$from] = ['menu_state' => 'main'];
-        }
+    // Start the session if not already started
+    if (!isset($this->sessionData[$from])) {
+        $this->sessionData[$from] = ['menu_state' => 'main']; // Initialize session data
+    }
 
-        // Process the user message based on the current menu state
-        $responseMessage = $this->processUserMessage($userMessage, $from);
+    $responseMessage = $this->processUserMessage($userMessage, $from);
 
-        \Log::info("Response message for {$from}: {$responseMessage}");
+    // Debugging: Log response message
+    \Log::info("Response message for {$from}: {$responseMessage}");
 
-        // Send the response message back to the user
-        $this->sendMessage($from, $responseMessage);
-        return response()->xml(['Message' => $responseMessage]);
+    // Send the response message back to the user via Twilio
+    $this->sendMessage($from, $responseMessage);
+    
+    return response()->xml(['Message' => $responseMessage]);
+
     }
 
     protected function processUserMessage($userMessage, $from)
     {
-        // Define main menu and submenus
         $mainMenu = [
             '1. ZAAD',
             '2. Internet',
@@ -55,71 +58,140 @@ class WhatsAppBotController extends Controller
             "0. Go back"
         ];
 
-        // ... (define other submenus similarly)
+        $internetSubMenu = [
+            "1. Fiber",
+            "2. Mobile broadband",
+        ];
+        // when select fiber
+        $Fiber = [
+          "1. New Fiber",
+          "2. Internet Billing",
+          "3. Troubleshooting",
+          "0. Go Back",
+        ];
+     
+        // New Fiber
 
-        // Handle user message based on the current menu state
-        $menuState = $this->sessionData[$from]['menu_state'];
-        switch ($menuState) {
-            case 'main':
-                return $this->handleMainMenu($userMessage, $mainMenu, $zaadSubMenu, $from);
-            case 'zaad':
-                return $this->handleZaadSubMenu($userMessage, $from);
-            // Add additional cases for other menus (internet, sim_card, etc.)
-            default:
-                return "Sorry, I didn’t understand that. Please type 'hi' or 'hello' to start again.";
+        $newFiber=[
+            "1. Hargeisa = HRG",
+            "2. Burco = BRO",
+            "3. Berbera = BER",
+            "4. Boorama = BRM",
+            "5. Wajaale = WAJ",
+            "6. Buuhoodle : BUH",
+            "7. Gabiley : GAB",
+            "8. Laascaanood = LAS",
+        ];
+
+         $internetSpeed =[
+           "1. 5MB  $20 Monthly     value = 20",
+           "2 7MB $30 Monthly",
+           "3 15MB $50 Monthly",
+           "4 20MB $80 Monthly",
+           "5 35MB $150 Monthly", 
+           "6 More than the above speed",
+         ];
+        $simCardSubMenu = [
+            "1. Mushaax",
+            "2. Ping/buk",
+            "3. Telesom Services",
+            "0. Go Back",
+        ];
+
+        // Default greeting and main menu
+        if (in_array(strtolower($userMessage), ['hi', 'hello', 'morning', 'good morning', 'asc'])) {
+            $responseMessage = "Good MORNING! Please choose what we can help with today:\n" . implode("\n", $mainMenu);
+            $this->sessionData[$from]['menu_state'] = 'main';
+
+        } elseif ($this->sessionData[$from]['menu_state'] === 'main') {
+            // Handle main menu selections
+            switch ($userMessage) {
+                case '1':
+                    $responseMessage = "You have chosen ZAAD services. Please select an option:\n" . implode("\n", $zaadSubMenu);
+                    $this->sessionData[$from]['menu_state'] = 'zaad';
+                    break;
+                case '2':
+                    $responseMessage = "You have chosen Internet services. Please select an option:\n" . implode("\n", $internetSubMenu);
+                    $this->sessionData[$from]['menu_state'] = 'internet';
+                    break;
+                case '4':
+                    $responseMessage = "You have chosen Sim Card services. Please select an option:\n" . implode("\n", $simCardSubMenu);
+                    $this->sessionData[$from]['menu_state'] = 'sim_card';
+                    break;
+                case '6':
+                    $responseMessage = "Connecting you with an agent. Please hold on...";
+                    $this->sessionData[$from]['menu_state'] = 'main'; // Reset to main menu
+                    break;
+                default:
+                    $responseMessage = "Sorry, I didn’t understand that. Please type 'hi' or 'hello' to start again.";
+            }
+        } elseif ($this->sessionData[$from]['menu_state'] === 'sim_card') {
+            // Handle Ping/Buk number entry
+            if ($userMessage === '2') {
+                $responseMessage = "Please enter your phone number for Ping/Buk:";
+                $this->sessionData[$from]['menu_state'] = 'ping_buk_number_entry'; // Set a new state to handle number entry
+            } elseif ($userMessage === '0') {
+                $responseMessage = "Going back to the main menu...\n" . implode("\n", $mainMenu);
+                $this->sessionData[$from]['menu_state'] = 'main';
+            }
+        } 
+        
+        // Validate Ping/Buk phone number
+        if ($this->sessionData[$from]['menu_state'] === 'ping_buk_number_entry') {
+            if (is_numeric($userMessage) && strlen($userMessage) === 9) {
+                $this->sessionData[$from]['ping_buk_number'] = $userMessage;
+
+                // Call the API
+                $apiResponse = $this->callPingBukAPI($this->sessionData[$from]['ping_buk_number']);
+                
+                if ($apiResponse['status'] === 'success') {
+                    $responseMessage = "Ping/Buk details for number: " . $this->sessionData[$from]['ping_buk_number'] . "\nResponse: " . $apiResponse['message'];
+                } else {
+                    $responseMessage = "Error: " . $apiResponse['message'];
+                }
+
+                // Reset the session state after handling the request
+                $this->sessionData[$from]['menu_state'] = 'sim_card';
+                unset($this->sessionData[$from]['ping_buk_number']); // Remove the stored number
+            } else {
+                $responseMessage = "Please enter a valid 9-digit number:";
+            }
         }
+
+        return $responseMessage;
     }
 
-    protected function handleMainMenu($userMessage, $mainMenu, $zaadSubMenu, $from)
-    {
-        switch ($userMessage) {
-            case '1': // ZAAD
-                $this->sessionData[$from]['menu_state'] = 'zaad';
-                return "You have chosen ZAAD services. Please select an option:\n" . implode("\n", $zaadSubMenu);
-            // Handle other main menu options similarly...
-            default:
-                return "Please select a valid option:\n" . implode("\n", $mainMenu);
-        }
-    }
+    private function sendMessage($to, $message)
+{
+    // Twilio credentials
+    $accountSid = 'AC38dcca7bf336dcf27b4027f401338024';
+    $authToken = 'e8942ed61298b38c3427a2c9df896a15';
+    $twilioNumber = 'whatsapp:+14155238886'; 
 
-    protected function handleZaadSubMenu($userMessage, $from)
-    {
-        switch ($userMessage) {
-            case '1':
-                return "You have chosen to create a new ZAAD account. Please provide your information.";
-            case '2':
-                return "You have chosen Merchant Information. Please specify your merchant details.";
-            case '3':
-                return "You have chosen Wrong ZAAD Transfer Support. Please describe your issue.";
-            case '4':
-                return "You have chosen Last ZAAD Transactions. Fetching your last transactions...";
-            case '5':
-                return "You have chosen Waafi services. Please provide the details.";
-            case '6':
-                return "You have chosen to connect with an agent. Please hold on.";
-            case '0':
-                $this->sessionData[$from]['menu_state'] = 'main'; // Reset to main menu
-                return "Going back to the main menu.";
-            default:
-                return "Invalid option. Please select a valid submenu option.";
-        }
-    }
+    // Create a Twilio client
+    $client = new Client($accountSid, $authToken);
 
-    // Add similar functions for other submenus (internet, sim_card, etc.)
-
-    protected function sendMessage($to, $message)
-    {
-        // Log the number being sent to
-        \Log::info("Sending message to: {$to}");
-
-        $twilioSID = 'AC38dcca7bf336dcf27b4027f401338024';
-        $twilioToken = 'e8942ed61298b38c3427a2c9df896a15';
-        $twilioNumber = 'whatsapp:+14155238886'; 
-
-        $client = new Client($twilioSID, $twilioToken);
-        $client->messages->create($to, [
-            'from' => $twilioNumber,
-            'body' => $message,
-        ]);
+    try {
+        // Send a message back to the user
+        $client->messages->create(
+            $to, // Recipient's number
+            [
+                'from' => $twilioNumber,
+                'body' => $message
+            ]
+        );
+    } catch (\Exception $e) {
+        \Log::error('Failed to send message: ' . $e->getMessage());
     }
 }
+
+    protected function callPingBukAPI($number)
+    {
+        // Your code to call the Ping/Buk API and return the response
+        return [
+            'status' => 'success', // or 'error'
+            'message' => 'Details for the requested number.' // Placeholder response
+        ];
+    }
+}
+
