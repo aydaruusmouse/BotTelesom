@@ -353,13 +353,6 @@ class WhatsAppBotController extends Controller
     }
 }
 
-    protected function callPingBukAPI($number)
-    {
-        // Your code to call the Ping/Buk API and return the response
-        return [
-            'status' => 'success', // or 'error'
-            'message' => 'Details for the requested number.' // Placeholder response
-        ];
-    }
+    
 }
 
