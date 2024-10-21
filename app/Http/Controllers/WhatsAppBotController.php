@@ -333,7 +333,7 @@ class WhatsAppBotController extends Controller
 {
     // Twilio credentials
     $accountSid = 'AC38dcca7bf336dcf27b4027f401338024';
-    $authToken = 'e8942ed61298b38c3427a2c9df896a15';
+    $authToken = '3ecd5a872109f5a99b4375e616335b32';
     $twilioNumber = 'whatsapp:+14155238886'; 
 
     // Create a Twilio client
