@@ -48,15 +48,20 @@ class WhatsAppBotController extends Controller
             "2. Mobile broadband",
             "0. Go Back",
         ];
+        $newFiber= [
+            '1. New Internet ',
+            '2. Internet Billing',
+            '3. Troubleshooting'
+        ];
         
         $fiberSubMenu = [
-            "1. New Fiber",
+            "1. New Internet",
             "2. Internet Billing",
             "3. Troubleshooting",
             "0. Go Back",
         ];
         
-        $newFiber = [
+        $city = [
             "1. Hargeisa = HRG",
             "2. Burco = BRO",
             "3. Berbera = BER",
@@ -125,201 +130,447 @@ class WhatsAppBotController extends Controller
         ];
     
         // Default greeting and main menu
-        if (in_array($userMessage, ['hi', 'hello', 'morning', 'good morning', 'asc'])) {
-            $responseMessage = "Good MORNING, Khalid! Please choose what we can help with today:<br>";
-            $responseMessage .= implode("<br>", $mainMenu);
-            $_SESSION['menu_state'] = 'main'; // Initialize state to main
-    
-        } elseif ($_SESSION['menu_state'] === 'main') {
-            // Handle main menu selections
-            switch ($userMessage) {
-                case '1':
-                    $responseMessage = "You have chosen ZAAD services. Please select an option:<br>" . implode("<br>", $zaadSubMenu);
-                    $_SESSION['menu_state'] = 'zaad'; // Set state to zaad
-                    break;
-                case '2':
-                    $responseMessage = "You have chosen Internet services. Please select an option:<br>" . implode("<br>", $internetSubMenu);
-                    $_SESSION['menu_state'] = 'internet'; // Set state to zaad
-                    break;
-                case '3':
-                    $responseMessage = "You have chosen Sim Card services. Please select an option:<br>" . implode("<br>", $simCardSubMenu);
-                    $_SESSION['menu_state'] = 'sim_card'; // Set state to zaad
-                    break;
-                case '4':
-                    $responseMessage = "Value Added Services
-                    . Please select an option:<br>" . implode("<br>", $valueAddedServicesSubMenu);
-                    $_SESSION['menu_state'] = 'VAS'; // Set state to zaad
-                    break;
-                case '5':
-                    $responseMessage = "Self Support
-                    . Please select an option:<br>" . implode("<br>", $selfSupportSubMenu);
-                    $_SESSION['menu_state'] = 'selfsupport'; // Set state to zaad
-                    break;
-                case '6':
-                    $responseMessage = "Additional Services. Please select an option:<br>" . implode("<br>", $additionalServicesSubMenu);
-                    $_SESSION['menu_state'] = 'additional service'; // Set state to zaad
-                    break;
-                case '7':
-                    $responseMessage = "Customer Satisfaction Please select an option:<br>" . implode("<br>", $customerSatisfactionSubMenu);
-                    $_SESSION['menu_state'] = 'additional service'; // Set state to zaad
-                    break;
-                case '8':
-                    $responseMessage = "You have Connect Live Agent . :<br>" . implode("<br>",);
-                    $_SESSION['menu_state'] = 'additional service'; // Set state to zaad
-                    break;
-                // Additional handling for other main menu options...
-                default:
-                    $responseMessage = "Sorry, I didn’t understand that. Please type 'hi' or 'hello' to start again.";
-            }
-        } elseif ($_SESSION['menu_state'] === 'zaad') {
-            // Handle ZAAD submenu selections directly
-            switch ($userMessage) {
-                case '1': // New ZAAD Account
-                    $responseMessage = "Dear Mr/Ms. If you want to open a new ZAAD account, one of the following documents is needed:<br>"
-                                     . "National ID<br>Driver's License<br>Passport<br>"
-                                     . "Please visit the nearest Telesom branch or call 151.<br>"
-                                     . "For more information, visit our website: Zaad Services - Telesom telecom";
-                    break;
-                case '2': // New Merchant Account
-                    $responseMessage = "Dear Mr/Ms. If you want to open a new ZAAD Merchant account, one of the following documents is needed:<br>"
-                                     . "Business license<br>Another Merchant<br>Telesom staff<br>"
-                                     . "Please visit the nearest Telesom branch or call 522387.<br>"
-                                     . "For more information, visit our website: https://telesom.com/bussiness/financial_services";
-                    break;
-                case '3': // Wrong ZAAD Transfer Support
-                    $responseMessage = "Did you send the money from your WhatsApp number?<br>1. Yes<br>2. No";
-                    $_SESSION['menu_state'] = 'zaad_wrong_transfer'; // Set state for handling wrong transfer
-                    break;
-                case '4': // Last ZAAD Transactions
-                    $responseMessage = "Dear {{User}}, follow the steps below to view your last ZAAD transactions:<br>"
-                                     . "Dial *222# or *888#<br>2. Choose option 5 (Show my Last Transaction)<br>"
-                                     . "You will then be able to view the available options.";
-                    break;
-                case '0': // Go back to main menu
-                    
-                    $_SESSION['menu_state'] = 'zaad';
-                    $responseMessage = "You are still in the ZAAD services. Please select an option:<br>" . implode("<br>", $zaadSubMenu);
-                    break;
-                default:
-                    $responseMessage = "Invalid option. Please choose a valid option from the ZAAD services menu.";
-            }
-        } elseif ($_SESSION['menu_state'] === 'zaad_wrong_transfer') {
-            // Handle user response for sending money from WhatsApp
-            if ($userMessage === '1') { // Yes
-                $responseMessage = "Please choose the type of Money:<br>1. ZAAD Shilling<br>2. ZAAD Dollar<br>3. Airtime<br>4. Data Recharge";
-                $_SESSION['menu_state'] = 'zaad_wrong_transfer_type';
-            } elseif ($userMessage === '2') { // No
-                $responseMessage = "Please enter the number you sent the money from:";
-                $_SESSION['menu_state'] = 'zaad_wrong_transfer_sender_number';
-            } else {
-                $responseMessage = "Invalid option. Please respond with '1' for Yes or '2' for No.";
-            }
-        }
-        
-        // Handle type of money selection (for "Yes" case)
-        if ($_SESSION['menu_state'] === 'zaad_wrong_transfer_type') {
-            if ($userMessage === '1') { // ZAAD Shilling
-                $responseMessage = "Please enter the receiver number:";
-                $_SESSION['menu_state'] = 'zaad_wrong_transfer_receiver_number';
-                $_SESSION['money_type'] = 'ZAAD Shilling';
-            } elseif ($userMessage === '2') { // ZAAD Dollar
-                $responseMessage = "Please enter the receiver number:";
-                $_SESSION['menu_state'] = 'zaad_wrong_transfer_receiver_number';
-                $_SESSION['money_type'] = 'ZAAD Dollar';
-            } elseif ($userMessage === '3') { // Airtime
-                $responseMessage = "Please enter the transaction number:";
-                $_SESSION['menu_state'] = 'zaad_wrong_transfer_transaction_number';
-                $_SESSION['money_type'] = 'Airtime';
-            } elseif ($userMessage === '4') { // Data Recharge
-                $responseMessage = "Please enter the transaction number:";
-                $_SESSION['menu_state'] = 'zaad_wrong_transfer_transaction_number';
-                $_SESSION['money_type'] = 'Data Recharge';
-            } else {
-                $responseMessage = "Invalid option. Please choose a valid type of money.";
-            }
-        }
-        
-        // Handle receiver number input (for "Yes" case)
-        if ($_SESSION['menu_state'] === 'zaad_wrong_transfer_receiver_number') {
-            $_SESSION['zaad_wrong_transfer_receiver_number'] = $userMessage; // Store receiver's number
-            $responseMessage = "Please enter the transaction number:";
-            $_SESSION['menu_state'] = 'zaad_wrong_transfer_transaction_number'; // Set state for transaction number
-        }
-        
-        // Handle transaction number input (for "Yes" case)
-        if ($_SESSION['menu_state'] === 'zaad_wrong_transfer_transaction_number') {
-            // Finalize the wrong transfer process for "Yes" case
-            $responseMessage = "Thank you! Your wrong transfer request has been submitted.<br>"
-                             . "Money Type: " . $_SESSION['money_type'] . "<br>"
-                             . "Receiver Number: " . $_SESSION['zaad_wrong_transfer_receiver_number'] . "<br>"
-                             . "Transaction Number: " . $userMessage;
-            $_SESSION['menu_state'] = 'zaad'; // Reset to ZAAD submenu after handling
-        }
-        
-        // Handle sender number input (for "No" case)
-        if ($_SESSION['menu_state'] === 'zaad_wrong_transfer_sender_number') {
-            $_SESSION['sender_number'] = $userMessage; // Store sender's number
-            $responseMessage = "Please choose the type of Money:<br>1. ZAAD Shilling<br>2. ZAAD Dollar<br>3. Airtime<br>4. Data Recharge";
-            $_SESSION['menu_state'] = 'zaad_wrong_transfer_type_from_sender';
-        }
-        
-        // Handle type of money selection (for "No" case)
-        if ($_SESSION['menu_state'] === 'zaad_wrong_transfer_type_from_sender') {
-            if ($userMessage === '1') { // ZAAD Shilling
-                $responseMessage = "Please enter the number you sent the money to:";
-                $_SESSION['money_type'] = 'ZAAD Shilling';
-                $_SESSION['menu_state'] = 'zaad_wrong_transfer_receiver_number_from_sender';
-            } elseif ($userMessage === '2') { // ZAAD Dollar
-                $responseMessage = "Please enter the number you sent the money to:";
-                $_SESSION['money_type'] = 'ZAAD Dollar';
-                $_SESSION['menu_state'] = 'zaad_wrong_transfer_receiver_number_from_sender';
-            } elseif ($userMessage === '3') { // Airtime
-                $responseMessage = "Please enter the transaction number:";
-                $_SESSION['money_type'] = 'Airtime';
-                $_SESSION['menu_state'] = 'zaad_wrong_transfer_transaction_number_from_sender';
-            } elseif ($userMessage === '4') { // Data Recharge
-                $responseMessage = "Please enter the transaction number:";
-                $_SESSION['money_type'] = 'Data Recharge';
-                $_SESSION['menu_state'] = 'zaad_wrong_transfer_transaction_number_from_sender';
-            } else {
-                $responseMessage = "Invalid option. Please choose a valid type of money.";
-            }
-        }
-        
-        // Handle receiver number input (for "No" case)
-        if ($_SESSION['menu_state'] === 'zaad_wrong_transfer_receiver_number_from_sender') {
-            $_SESSION['receiver_number_from_sender'] = $userMessage; // Store the receiver number
-            $responseMessage = "Please enter the transaction number:";
-            $_SESSION['menu_state'] = 'zaad_wrong_transfer_transaction_number_from_sender';
-        }
-        
-        // Handle transaction number input (for "No" case)
-        if ($_SESSION['menu_state'] === 'zaad_wrong_transfer_transaction_number_from_sender') {
-            // Finalize the wrong transfer process for "No" case
-            $responseMessage = "Thank you! Your wrong transfer request has been submitted.<br>"
-                             . "Money Type: " . $_SESSION['money_type'] . "<br>"
-                             . "Receiver Number: " . $_SESSION['receiver_number_from_sender'] . "<br>"
-                             . "Transaction Number: " . $userMessage;
-            $_SESSION['menu_state'] = 'zaad'; // Reset to ZAAD submenu after handling
-        }
-       // Handle Ping/Buk number entry
-       if ($_SESSION['menu_state'] === 'sim_card') {
-        $_SESSION['menu_state'] = 'sim_card';
-        if ($userMessage === 3) {
-            $responseMessage = "Please enter the number you want to send money to:";
-            $_SESSION['menu_state'] = 'Telesom_Services';
+if (in_array(strtolower($userMessage), ['hi', 'hello', 'morning', 'good morning', 'asc'])) {
+    $responseMessage = "Good MORNING, Khalid! Please choose what we can help with today:<br>";
+    $responseMessage .= implode("<br>", $mainMenu);
+    $_SESSION['menu_state'] = 'main'; // Initialize state to main
 
-            # code...
-        }
-        if ($userMessage === '2') {
-            $responseMessage = "Please enter your phone number for Ping/Buk:";
-            $_SESSION['menu_state'] = 'ping_buk_number_entry'; // Set a new state to handle number entry
-        } elseif ($userMessage === '0') {
+} elseif ($_SESSION['menu_state'] === 'main') {
+    // Handle main menu selections
+    switch ($userMessage) {
+        case '1':
+            $responseMessage = "You have chosen ZAAD services. Please select an option:<br>" . implode("<br>", $zaadSubMenu);
+            $_SESSION['menu_state'] = 'zaad'; // Set state to zaad
+            break;
+        case '2':
+            $responseMessage = "You have chosen Internet services. Please select an option:<br>" . implode("<br>", $internetSubMenu);
+            $_SESSION['menu_state'] = 'internet'; // Set state to internet
+            break;
+        case '3':
+            $responseMessage = "You have chosen Sim Card services. Please select an option:<br>" . implode("<br>", $simCardSubMenu);
+            $_SESSION['menu_state'] = 'sim_card'; // Set state to sim card
+            break;
+        case '4':
+            $responseMessage = "Value Added Services. Please select an option:<br>" . implode("<br>", $valueAddedServicesSubMenu);
+            $_SESSION['menu_state'] = 'VAS'; // Set state to VAS
+            break;
+        case '5':
+            $responseMessage = "Self Support. Please select an option:<br>" . implode("<br>", $selfSupportSubMenu);
+            $_SESSION['menu_state'] = 'selfsupport'; // Set state to self support
+            break;
+        case '6':
+            $responseMessage = "Additional Services. Please select an option:<br>" . implode("<br>", $additionalServicesSubMenu);
+            $_SESSION['menu_state'] = 'additional_service'; // Set state to additional service
+            break;
+        case '7':
+            $responseMessage = "Customer Satisfaction. Please select an option:<br>" . implode("<br>", $customerSatisfactionSubMenu);
+            $_SESSION['menu_state'] = 'customer_satisfaction'; // Set state to customer satisfaction
+            break;
+        case '8':
+            $responseMessage = "Connecting to Live Agent...";
+            // Add live agent state if needed.
+            break;
+        default:
+            $responseMessage = "Sorry, I didn’t understand that. Please choose an option from the menu.";
+            break;
+    }
+} elseif($_SESSION['menu_state'] === 'internet') {
+    // Handle internet services selections
+    switch ($userMessage) {
+        case '1':
+            $responseMessage = "You have chosen New Fiber services. Please select a location:<br>  " . implode("<br>", $fiberSubMenu);
+            $_SESSION['menu_state'] = 'new_fiber'; // Update to 'new_fiber_location' state
+            break;
+        case '2':
+            $responseMessage = 'You have in  Internet Billing';
+            $_SESSION['menu_state'] = 'Internet_Billing';
+            break;
+        case '3':
+            $responseMessage= 'In TroubleShooting';
+            $_SESSION['menu_state'] = 'Troubleshooting';
+            break;
+        case '0': // Go back to main menu
             $responseMessage = "Going back to the main menu...";
-            $_SESSION['menu_state'] = 'main';
+            $_SESSION['menu_state'] = 'main'; // Reset to main menu
             $responseMessage .= "<br>" . implode("<br>", $mainMenu);
-        } 
-    } 
+            break;
+
+        default:
+            $responseMessage = "Invalid option. Please choose from the Internet menu.";
+            break;
+    }
+
+   
+}
+
+
+elseif ($_SESSION['menu_state']=== 'new_fiber') {
+    if($userMessage === '1'){
+        $responseMessage = "You have chosen New Fiber services. Please select a location:<br>  " . implode("<br>", $city);
+        $_SESSION['menu_state'] = 'new_fiber_location';
+    }elseif($userMessage === '2'){
+        
+        $_SESSION['menu_state'] = 'internet_billing'; // Set menu state to internet_billing
+
+        $responseMessage = "Please enter the line you have registered for your internet (e.g., 522297):";
+
+    }elseif($userMessage === '3') {
+        $responseMessage = "Please select the type of troubleshooting you need:<br>1. Internet Services<br>2. Landline (Fixed Line)<br>0. Go Back";
+        $_SESSION['menu_state'] = 'troubleshooting'; // Set menu state to troubleshooting
+        
+    }
+   
+    # code...
+}elseif ($_SESSION['menu_state'] === 'internet_billing') {
+    // Check if the user has entered a valid line number (e.g., it should be numeric)
+    if (preg_match('/^\d{6}$/', $userMessage)) { // Assuming the line number is 6 digits
+        // Here, we can retrieve the due balance based on the line number
+        // For now, we will assume a static balance for demonstration
+        // In a real application, you might query a database for the actual balance
+        $dueBalance = 100; // Example static value
+        
+        $responseMessage = "Your due balance is $$dueBalance.";
+        
+        // Optionally, return to main menu or prompt further action
+         // Reset to main menu
+        $responseMessage .= "<br>Thank you! You can select another service:<br>";
+    } else {
+        $responseMessage = "Invalid line number. Please enter a valid 6-digit line number (e.g., 522297):";
+    }
+}// Handle internet services and landline troubleshooting
+
+// Handle troubleshooting menu state
+elseif ($_SESSION['menu_state'] === 'troubleshooting') {
+    // Ask the user to select which type of troubleshooting (Internet or Landline)
+    $responseMessage = "Please select the type of troubleshooting you need:<br>1. Internet Services<br>2. Landline (Fixed Line)<br>0. Go Back";
+    $_SESSION['menu_state'] = 'troubleshooting_type';
+}
+
+// Handle type selection for troubleshooting
+elseif ($_SESSION['menu_state'] === 'troubleshooting_type') {
+    switch ($userMessage) {
+        case '1': // Internet Services
+            $responseMessage = "Please enter your Reference Number for Internet Services (e.g., 634220460):";
+            $_SESSION['menu_state'] = 'internet_troubleshooting_reference'; // Update session state
+            break;
+        case '2': // Landline Services
+            $responseMessage = "Please enter your Reference Number for Landline Services (e.g., 634220460):";
+            $_SESSION['menu_state'] = 'landline_troubleshooting_reference'; // Update session state
+            break;
+        case '0': // Go Back
+            $responseMessage = "Going back to the main menu...";
+            $_SESSION['menu_state'] = 'main'; // Reset to main menu
+            $responseMessage .= "<br>" . implode("<br>", $mainMenu);
+            break;
+        default:
+            $responseMessage = "Invalid option. Please select from the troubleshooting menu.";
+            break;
+    }
+}
+
+// Handle reference number input for Internet Services troubleshooting
+elseif ($_SESSION['menu_state'] === 'internet_troubleshooting_reference') {
+    if (preg_match('/^\d{9}$/', $userMessage)) { // Assuming the reference number is 9 digits
+        $_SESSION['internet_troubleshooting_reference'] = $userMessage; // Store the reference number
+
+        // Display the list of available internet services based on the reference
+        // Here you could dynamically retrieve the services, but for demonstration, we use static options
+        $internetServices = [
+            '1' => '510093 - DHOOL DIGITAL AGENCY FIBER - DSL',
+            '2' => '518884 - LAVISH MEDSPA LOOKHEALTH DEDICATED'
+        ];
+
+        $responseMessage = "Please choose below your internet service:<br>" . implode("<br>", $internetServices);
+        $_SESSION['menu_state'] = 'internet_troubleshooting_service'; // Move to service selection state
+    } else {
+        $responseMessage = "Invalid reference number. Please enter a valid 9-digit reference number (e.g., 634220460):";
+    }
+}
+
+// Handle internet service selection for troubleshooting
+elseif ($_SESSION['menu_state'] === 'internet_troubleshooting_service') {
+    $internetServices = [
+        '1' => '510093 - DHOOL DIGITAL AGENCY FIBER - DSL',
+        '2' => '518884 - LAVISH MEDSPA LOOKHEALTH DEDICATED'
+    ];
+
+    if (array_key_exists($userMessage, $internetServices)) {
+        $_SESSION['internet_troubleshooting_service'] = $internetServices[$userMessage]; // Store the selected service
+
+        $responseMessage = "Troubleshooting request for Internet Service " . $_SESSION['internet_troubleshooting_service'] . " submitted successfully!";
+        $_SESSION['menu_state'] = 'main'; // Reset to main menu
+        $responseMessage .= "<br>Thank you! You can select another service:<br>" . implode("<br>", $mainMenu);
+    } else {
+        $responseMessage = "Invalid option. Please choose a valid internet service:<br>" . implode("<br>", $internetServices);
+    }
+}
+
+// Handle reference number input for Landline Services troubleshooting
+elseif ($_SESSION['menu_state'] === 'landline_troubleshooting_reference') {
+    if (preg_match('/^\d{9}$/', $userMessage)) { // Assuming the reference number is 9 digits
+        $_SESSION['landline_troubleshooting_reference'] = $userMessage; // Store the reference number
+
+        // Display the list of available landline services based on the reference
+        $landlineServices = [
+            '1' => '510093 - DHOOL DIGITAL AGENCY FIBER',
+            '2' => '518884 - LAVISH MEDSPA LOOKHEALTH DEDICATED'
+        ];
+
+        $responseMessage = "Please choose below your landline service:<br>" . implode("<br>", $landlineServices);
+        $_SESSION['menu_state'] = 'landline_troubleshooting_service'; // Move to service selection state
+    } else {
+        $responseMessage = "Invalid reference number. Please enter a valid 9-digit reference number (e.g., 634220460):";
+    }
+}
+
+// Handle landline service selection for troubleshooting
+elseif ($_SESSION['menu_state'] === 'landline_troubleshooting_service') {
+    $landlineServices = [
+        '1' => '510093 - DHOOL DIGITAL AGENCY FIBER',
+        '2' => '518884 - LAVISH MEDSPA LOOKHEALTH DEDICATED'
+    ];
+
+    if (array_key_exists($userMessage, $landlineServices)) {
+        $_SESSION['landline_troubleshooting_service'] = $landlineServices[$userMessage]; // Store the selected service
+
+        $responseMessage = "Troubleshooting request for Landline Service " . $_SESSION['landline_troubleshooting_service'] . " submitted successfully!";
+        $_SESSION['menu_state'] = 'main'; // Reset to main menu
+        $responseMessage .= "<br>Thank you! You can select another service:<br>" . implode("<br>", $mainMenu);
+    } else {
+        $responseMessage = "Invalid option. Please choose a valid landline service:<br>" . implode("<br>", $landlineServices);
+    }
+}
+
+
+// Handle location selection
+elseif ($_SESSION['menu_state'] === 'new_fiber_location') {
+    $validLocations = [
+        '1' => 'Hargeisa (HRG)',
+        '2' => 'Burco (BRO)',
+        '3' => 'Berbera (BER)',
+        '4' => 'Boorama (BRM)',
+        '5' => 'Wajaale (WAJ)',
+        '6' => 'Buuhoodle (BUH)',
+        '7' => 'Gabiley (GAB)',
+        '8' => 'Laascaanood (LAS)'
+    ];
+
+    if (array_key_exists($userMessage, $validLocations)) {
+        $_SESSION['new_fiber_location'] = $validLocations[$userMessage]; // Store selected location
+        $responseMessage = "You have selected " . $_SESSION['new_fiber_location'] . ". Please enter your address (Max: 20 characters):";
+        $_SESSION['menu_state'] = 'new_fiber_address'; // Move to address entry state
+    } else {
+        $responseMessage = "Invalid location. Please select a valid option:<br>" . implode("<br>", $validLocations);
+    }
+}
+
+// Handle address input
+elseif ($_SESSION['menu_state'] === 'new_fiber_address') {
+    if (strlen($userMessage) <= 20) {
+        $_SESSION['new_fiber_address'] = $userMessage; // Store entered address
+        $responseMessage = "Please choose the speed of the Internet:<br>1. 5MB - $20 Monthly<br>2. 7MB - $30 Monthly<br>3. 15MB - $50 Monthly<br>4. 20MB - $80 Monthly<br>5. 35MB - $150 Monthly<br>6. More than the above speed";
+        $_SESSION['menu_state'] = 'new_fiber_speed'; // Move to speed selection state
+    } else {
+        $responseMessage = "Address too long. Please enter an address with a maximum of 20 characters:";
+    }
+}
+
+// Handle speed selection
+elseif ($_SESSION['menu_state'] === 'new_fiber_speed') {
+    $speedOptions = [
+        '1' => '5MB - $20 Monthly',
+        '2' => '7MB - $30 Monthly',
+        '3' => '15MB - $50 Monthly',
+        '4' => '20MB - $80 Monthly',
+        '5' => '35MB - $150 Monthly',
+        '6' => 'More than the above speed'
+    ];
+
+    if (array_key_exists($userMessage, $speedOptions)) {
+        $_SESSION['new_fiber_speed'] = $speedOptions[$userMessage]; // Store selected speed
+        $responseMessage = "You have selected " . $_SESSION['new_fiber_speed'] . ". Please enter your payment phone number (9 digits):";
+        $_SESSION['menu_state'] = 'new_fiber_phone_number'; // Move to phone number state
+    } else {
+        $responseMessage = "Invalid speed selection. Please choose a valid speed option:<br>" . implode("<br>", $speedOptions);
+    }
+}
+
+// Handle phone number entry
+elseif ($_SESSION['menu_state'] === 'new_fiber_phone_number') {
+    if (preg_match('/^\d{9}$/', $userMessage)) {
+        $_SESSION['new_fiber_phone_number'] = $userMessage; // Store valid phone number
+        $responseMessage = "The installation cost is $20. Please select your payment option:<br>1. Zaad Dollar<br>2. Zaad Shilling";
+        $_SESSION['menu_state'] = 'new_fiber_payment'; // Move to payment selection state
+    } else {
+        $responseMessage = "Invalid phone number. Please enter a valid 9-digit phone number:";
+    }
+}
+
+// Handle payment option selection
+elseif ($_SESSION['menu_state'] === 'new_fiber_payment') {
+    $paymentOptions = [
+        '1' => 'Zaad Dollar',
+        '2' => 'Zaad Shilling'
+    ];
+
+    if (array_key_exists($userMessage, $paymentOptions)) {
+        $_SESSION['new_fiber_payment'] = $paymentOptions[$userMessage]; // Store selected payment option
+        $responseMessage = "Dear customer, to get this service quickly, the Internet & Landline department will contact you. Thank you!";
+        $_SESSION['menu_state'] = 'main'; // Reset to main menu after completion
+    } else {
+        $responseMessage = "Invalid payment option. Please choose a valid option:<br>1. Zaad Dollar<br>2. Zaad Shilling";
+    }
+}
+
+
+elseif ($_SESSION['menu_state'] === 'zaad') {
+    // Handle ZAAD submenu selections
+    switch ($userMessage) {
+        case '1': // New ZAAD Account
+            $responseMessage = "To open a new ZAAD account, one of the following documents is needed:<br>National ID<br>Driver's License<br>Passport.<br>Visit the nearest Telesom branch or call 151.";
+            break;
+        case '2': // New Merchant Account
+            $responseMessage = "To open a new ZAAD Merchant account, bring a Business License, another Merchant, or Telesom staff.<br>Visit the nearest Telesom branch or call 522387.";
+            break;
+        case '3': // Wrong ZAAD Transfer Support
+            $responseMessage = "Did you send the money from your WhatsApp number?<br>1. Yes<br>2. No";
+            $_SESSION['menu_state'] = 'zaad_wrong_transfer'; // Set state for wrong transfer
+            break;
+        case '4': // Last ZAAD Transactions
+            $responseMessage = "To view your last ZAAD transactions, dial *222# or *888# and choose option 5 (Show Last Transaction).";
+            break;
+        case '0': // Go back to main menu
+            $responseMessage = "Going back to the main menu...";
+            $_SESSION['menu_state'] = 'main'; // Reset to main menu
+            $responseMessage .= "<br>" . implode("<br>", $mainMenu);
+            break;
+        default:
+            $responseMessage = "Invalid option. Please choose from the ZAAD menu.";
+            break;
+    }
+} elseif ($_SESSION['menu_state'] === 'zaad_wrong_transfer') {
+    // Handle wrong transfer submenu
+    if ($userMessage === '1') {
+        $responseMessage = "Please select the type of Money:<br>1. ZAAD Shilling<br>2. ZAAD Dollar<br>3. Airtime<br>4. Data Recharge";
+        $_SESSION['menu_state'] = 'zaad_wrong_transfer_type'; // Set state for money type selection
+    } elseif ($userMessage === '2') {
+        $responseMessage = "Please enter the number you sent the money from:";
+        $_SESSION['menu_state'] = 'zaad_wrong_transfer_sender_number'; // Set state for sender number entry
+    } else {
+        $responseMessage = "Invalid option. Please respond with '1' for Yes or '2' for No.";
+    }
+} elseif ($_SESSION['menu_state'] === 'zaad_wrong_transfer_type') {
+    // Handle type of money selection
+    if ($userMessage === '1' || $userMessage === '2') {
+        $responseMessage = "Please enter the receiver's number:";
+        $_SESSION['menu_state'] = 'zaad_wrong_transfer_receiver_number';
+        $_SESSION['money_type'] = ($userMessage === '1') ? 'ZAAD Shilling' : 'ZAAD Dollar';
+    } elseif ($userMessage === '3' || $userMessage === '4') {
+        $responseMessage = "Please enter the transaction number:";
+        $_SESSION['menu_state'] = 'zaad_wrong_transfer_transaction_number';
+        $_SESSION['money_type'] = ($userMessage === '3') ? 'Airtime' : 'Data Recharge';
+    } else {
+        $responseMessage = "Invalid option. Please select the correct money type.";
+    }
+} elseif ($_SESSION['menu_state'] === 'zaad_wrong_transfer_receiver_number') {
+    $_SESSION['zaad_wrong_transfer_receiver_number'] = $userMessage; // Store receiver's number
+    $responseMessage = "Please enter the transaction number:";
+    $_SESSION['menu_state'] = 'zaad_wrong_transfer_transaction_number'; // Set state for transaction number
+} elseif ($_SESSION['menu_state'] === 'zaad_wrong_transfer_transaction_number') {
+    // Finalize wrong transfer
+
+    $apiRequestBody = [
+        "msisdn" => '634097961',
+        "transactionnumber" => $transactionNumber,
+        "wrongnumber" => $wrongNumber,
+        "currency_code" => $currencyCode
+    ];
+        // Convert the request body to JSON format
+        $jsonRequestBody = json_encode($apiRequestBody);
+
+        // Set up the API request headers
+        $apiHeaders = [
+            'apiTokenUser: mob#!Billing!*',
+            'apiTokenPwd: De6$A7#ES282S@m@l!n.2BIoz',
+            'Content-Type: application/json',
+        ];
+    
+        // Initialize cURL session for the API request
+        $ch = curl_init('http://10.10.0.7:8077/api/KaaliyeApi/BlockWrongTransaction');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonRequestBody);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $apiHeaders);
+    
+        // Execute the API request
+        $apiResponse = curl_exec($ch);
+    
+        // Check for cURL errors
+        if (curl_errno($ch)) {
+            $responseMessage = "Error connecting to the API: " . curl_error($ch);
+        } else {
+            // Parse the API response
+            $decodedResponse = json_decode($apiResponse, true);
+    
+            // Check for a successful response
+            if ($decodedResponse['status'] == '1') {
+                $responseMessage = $decodedResponse['Message']; // Display success message from the API
+            } else {
+                $responseMessage = "Failed to block the wrong transaction. Please try again.";
+            }
+        }
+    
+        // Close the cURL session
+        curl_close($ch);
+    
+        // Reset the menu state to the main ZAAD menu after completing the API request
+        $_SESSION['menu_state'] = 'zaad';
+    
+}
+
+
+
+
+
+elseif($_SESSION['menu_state'] === 'sim_card') {
+    if ($userMessage === '1') {
+        $responseMessage = "mushaax";
+        $_SESSION['menu_state'] = 'mushaax'; // Set state to handle Telesom services
+    } elseif ($userMessage === '2') {
+        $responseMessage = "Please enter your phone number for Ping/Buk:";
+        $_SESSION['menu_state'] = 'ping_buk_number_entry'; // Set state for Ping/Buk number entry
+    } elseif ($userMessage === '3') {
+        $responseMessage = "You have selected Telesom Services. <br> Telesom Services- Below content will be send <br>
+        “*444# Prepaid Internet u badalo <br>
+        *400# Adeegyo casri ah <br>
+        *141# Soo gudbinta Cabashooyinka <br>
+        *151# Adeega Kaaliye <br>
+        *122# Itus hadhaagayga <br>
+        *662# Itus Hadhaaga Internetka <br>
+        *133# Internet u dir Macmiil kale(Data Transfer) <br>
+        *403# Adeega Xoogsade <br>
+        *408# Adeega Ambassador service <br>
+        *409# Iga jooji datada in aan ku isticmaalo Prepaidka iigu jira <br>
+        151 Xafiiska daryeelka Macaamiisha Call center <br>
+        150 Adeega Aqoonmaal <br>
+        200 Adeega Aqoonmaal <br>
+        212 Call me back service <br>
+        Xafiiska daryeelka Macaamiisha Fadlan garaac 151 <br>
+        Missed call Notification Fadlan garaac 126 <br>
+        Adeeega Ilamaqal Fadlan garaac 118 <br>
+        AdeegaVoice SMS Fadlan garaac 136  <br>
+        Adeega Ila wadaag Fadlan garaac 115 <br>
+        ";
+        $_SESSION['menu_state'] = 'telesom_service_entry'; // Set state for Telesom service entry
+    } elseif ($userMessage === '0') {
+        $responseMessage = "Going back to the main menu...";
+        $_SESSION['menu_state'] = 'main'; // Reset to main menu
+        $responseMessage .= "<br>" . implode("<br>", $mainMenu); // Append main menu options
+    } else {
+        $responseMessage = "Invalid option. Please choose a valid option.";
+    }
+} 
+
 
         // Handle Pin/Puk number entry
         if ($_SESSION['menu_state']  === 'pin_puk_number_entry') {
