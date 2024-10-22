@@ -573,23 +573,30 @@ elseif($_SESSION['menu_state'] === 'sim_card') {
 
 
         // Handle Pin/Puk number entry
-        if ($_SESSION['menu_state']  === 'pin_puk_number_entry') {
-            if (is_numeric($userMessage) && strlen($userMessage) === 9) {
-                $this->sessionData[$from]['pin_puk_number'] = $userMessage;
-                $apiResponse = $this->callPinPukAPI($this->sessionData[$from]['pin_puk_number']);
-                
-                if ($apiResponse['status'] === 'success') {
-                    $responseMessage = "Pin/Puk details for number: " . $this->sessionData[$from]['pin_puk_number'] . "\nResponse: " . $apiResponse['message'];
-                } else {
-                    $responseMessage = "Error: " . $apiResponse['message'];
-                }
-
-                $this->sessionData[$from]['menu_state'] = 'sim_card'; // Return to Sim Card menu
-                unset($this->sessionData[$from]['pin_puk_number']); // Reset stored number
-            } else {
-                $responseMessage = "Please enter a valid 9-digit number:";
-            }
+       if ($_SESSION['menu_state'] === 'pin_puk_number_entry') {
+    if (is_numeric($userMessage) && strlen($userMessage) === 9) {
+        // Store the entered number
+        $this->sessionData[$from]['pin_puk_number'] = $userMessage;
+        
+        // Call the Ping/Puk API function with the entered phone number
+        $apiResponse = $this->callPingBukAPI($this->sessionData[$from]['pin_puk_number']);
+        
+        // Handle the API response
+        if ($apiResponse['status'] === 'success') {
+            $responseMessage = "Pin/Puk details for number: " . $this->sessionData[$from]['pin_puk_number'] . "\nResponse: " . $apiResponse['message'];
+        } else {
+            $responseMessage = "Error: " . $apiResponse['message'];
         }
+
+        // Reset session state to 'sim_card' and clean up stored phone number
+        $this->sessionData[$from]['menu_state'] = 'sim_card';
+        unset($this->sessionData[$from]['pin_puk_number']); // Clear the stored number
+    } else {
+        // Validation for invalid input
+        $responseMessage = "Please enter a valid 9-digit number:";
+    }
+}
+
 
         // Output the response message (for testing)
         echo $responseMessage;
@@ -602,14 +609,16 @@ elseif($_SESSION['menu_state'] === 'sim_card') {
 
 private function callPingBukAPI($phoneNumber)
 {
-    // Prepare the cURL request to the Ping/Buk API
+    // Initialize the cURL session
     $curl = curl_init();
 
+    // Prepare the data to be sent via POST
     $postData = json_encode([
         "Callsub" => $phoneNumber,
         "UserId" => "imll",
     ]);
 
+    // Set cURL options
     curl_setopt_array($curl, [
         CURLOPT_URL => "http://10.55.1.143:8983/api/CRMApi/GetSimDetails",
         CURLOPT_RETURNTRANSFER => true,
@@ -626,35 +635,40 @@ private function callPingBukAPI($phoneNumber)
         ],
     ]);
 
+    // Execute the request and get the response
     $response = curl_exec($curl);
     $err = curl_error($curl);
+
+    // Close the cURL session
     curl_close($curl);
 
+    // Log the error and return an error message if there's a cURL error
     if ($err) {
-        // Log the cURL error
         \Log::error("cURL Error: " . $err);
         return ['status' => 'error', 'message' => "cURL Error: " . $err];
-    } else {
-        // Log the raw API response for debugging
-        \Log::info('API Response: ', ['response' => $response]);
-        $decodedResponse = json_decode($response, true);
-        
-        // Check if the response is valid
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            return ['status' => 'error', 'message' => 'Invalid JSON response.'];
-        }
+    }
 
-        // Check the status in the API response
-        if (isset($decodedResponse['status'])) {
-            // Check for success status
-            if ($decodedResponse['status'] === 'success') {
-                return ['status' => 'success', 'message' => $decodedResponse['data']]; // Assuming 'data' contains the details
-            } else {
-                return ['status' => 'error', 'message' => $decodedResponse['message']];
-            }
+    // Log the raw API response for debugging purposes
+    \Log::info('API Response: ', ['response' => $response]);
+
+    // Parse the API response
+    $decodedResponse = json_decode($response, true);
+
+    // Check if the JSON response is valid
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        return ['status' => 'error', 'message' => 'Invalid JSON response.'];
+    }
+
+    // Check if the 'status' key exists in the response
+    if (isset($decodedResponse['status'])) {
+        // Handle a successful response
+        if ($decodedResponse['status'] === 'success') {
+            return ['status' => 'success', 'message' => $decodedResponse['data']]; // Assuming 'data' contains the response details
         } else {
-            return ['status' => 'error', 'message' => 'Invalid response structure.'];
+            return ['status' => 'error', 'message' => $decodedResponse['message']]; // Return the error message from the API
         }
+    } else {
+        return ['status' => 'error', 'message' => 'Unexpected response structure.'];
     }
 }
 
