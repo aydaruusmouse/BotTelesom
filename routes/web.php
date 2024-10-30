@@ -4,13 +4,18 @@ use App\Http\Controllers\SshController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WhatsAppBotController;
 
+use App\Http\Controllers\SimDetailsController;
+
+Route::get('/sim-details', [SimDetailsController::class, 'showForm'])->name('sim.details.form');
+Route::post('/sim-details', [SimDetailsController::class, 'submitForm'])->name('sim.details.submit');
+
 Route::get('/whatsapp/test', function () {
     return view('whatsapp_test');
 });
 // Change the route if you prefer API routes
 // Route::post('/whatsapp/incoming', [WhatsAppBotController::class, 'handleIncomingMessage']);
-Route::get('/whatsapp/test', [WhatsAppBotController::class, 'testMessage']);
-Route::post('/whatsapp/test', [WhatsAppBotController::class, 'testMessage']);
+// Route::get('/whatsapp/test', [WhatsAppBotController::class, 'testMessage']);
+Route::post('whatsapp/test', [WhatsAppBotController::class, 'testMessage']);
 
 
 Route::get('/test-api', function () {
