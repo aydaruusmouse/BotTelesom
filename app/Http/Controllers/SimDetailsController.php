@@ -34,64 +34,74 @@ class SimDetailsController extends Controller
     }
 
     private function callPingBukAPI($phoneNumber)
-    {
-        // Initialize the cURL session
-        $curl = curl_init();
+{
+    // Initialize the cURL session
+    $curl = curl_init();
 
-        // Prepare the data to be sent via POST
-        $postData = json_encode([
-            "Callsub" => $phoneNumber,
-            "UserId" => "imll",
-        ]);
+    // Prepare the data to be sent via POST
+    $postData = json_encode([
+        "Callsub" => $phoneNumber,
+        "UserId" => "imll",
+    ]);
 
-        // Set cURL options
-        curl_setopt_array($curl, [
-            CURLOPT_URL => "http://10.55.1.143:8983/api/CRMApi/GetSimDetails",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => $postData,
-            CURLOPT_HTTPHEADER => [
-                "apiTokenUser: CRMUser",
-                "apiTokenPwd: ZEWOALJNADSLLAIE321@!",
-                "Content-Type: application/json"
-            ],
-        ]);
+    // Set cURL options
+    curl_setopt_array($curl, [
+        CURLOPT_URL => "http://10.55.1.143:8983/api/CRMApi/GetSimDetails",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_POSTFIELDS => $postData,
+        CURLOPT_HTTPHEADER => [
+            "apiTokenUser: CRMUser",
+            "apiTokenPwd: ZEWOALJNADSLLAIE321@!",
+            "Content-Type: application/json"
+        ],
+    ]);
 
-        // Execute the request and get the response
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
+    // Execute the request and get the response
+    $response = curl_exec($curl);
+    $err = curl_error($curl);
 
-        // Close the cURL session
-        curl_close($curl);
+    // Close the cURL session
+    curl_close($curl);
 
-        // Log the error and return an error message if there's a cURL error
-        if ($err) {
-            \Log::error("cURL Error: " . $err);
-            return ['status' => 'error', 'message' => "cURL Error: " . $err];
-        }
-
-        // Parse the API response
-        $decodedResponse = json_decode($response, true);
-
-        // Check if the JSON response is valid
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            return ['status' => 'error', 'message' => 'Invalid JSON response.'];
-        }
-
-        // Check if the 'status' key exists in the response
-        if (isset($decodedResponse['status'])) {
-            // Handle a successful response
-            if ($decodedResponse['status'] === 'success') {
-                return ['status' => 'success', 'message' => $decodedResponse['data']];
-            } else {
-                return ['status' => 'error', 'message' => $decodedResponse['message']];
-            }
-        } else {
-            return ['status' => 'error', 'message' => 'Unexpected response structure.'];
-        }
+    // Log the error and return an error message if there's a cURL error
+    if ($err) {
+        \Log::error("cURL Error: " . $err);
+        return ['status' => 'error', 'message' => "cURL Error: " . $err];
     }
+
+    // Parse the API response
+    $decodedResponse = json_decode($response, true);
+
+    // Check if the JSON response is valid
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        return ['status' => 'error', 'message' => 'Invalid JSON response.'];
+    }
+
+    // Check if the 'status' key exists in the response
+    if (isset($decodedResponse['status'])) {
+        // Handle a successful response
+        if ($decodedResponse['status'] === '1') {
+            // Success! You can return the data accordingly
+            return [
+                'status' => 'success',
+                'message' => $decodedResponse['Data'] // This is your SIM details
+            ];
+        } else {
+            // Check if the 'Message' key exists
+            $errorMessage = isset($decodedResponse['Message']) ? $decodedResponse['Message'] : 'No error message provided.';
+            return [
+                'status' => 'error',
+                'message' => $errorMessage
+            ];
+        }
+    } else {
+        return ['status' => 'error', 'message' => 'Unexpected response structure.'];
+    }
+}
+
 }
