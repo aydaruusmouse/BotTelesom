@@ -11,8 +11,10 @@ class VerifyCsrfToken extends Middleware
      *
      * @var array
      */
+  
     protected $except = [
         '/webhook/twilio',  // Add your webhook route here
         'https://2115-154-115-251-98.ngrok-free.app/api/webhook/twilio',
+        'sim-details',
     ];
 }
