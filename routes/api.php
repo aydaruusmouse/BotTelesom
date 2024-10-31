@@ -10,6 +10,8 @@ use App\Http\Controllers\AdvertisementController;
 
 Route::post('/sim-details', [SimDetailsController::class, 'submitForm'])->name('sim.details.submit');
 
+Route::post('/send-advertisement-sms', [SmsController::class, 'sendAdvertisementSms'])->name('send.advertisement.sms');
+
 
 
 Route::get('/user', function (Request $request) {
