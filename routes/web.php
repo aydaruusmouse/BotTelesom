@@ -6,6 +6,7 @@ use App\Http\Controllers\WhatsAppBotController;
 use App\Http\Controllers\SimDetailsController;
 
 
+Route::get('/sim-details', [SimDetailsController::class, 'showForm'])->name('sim.details.form');
 
 
 

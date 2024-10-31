@@ -13,6 +13,7 @@
         <input type="text" id="phoneNumber" name="phoneNumber" required pattern="\d{9}">
         <button type="submit">Submit</button>
     </form>
+    
 
     @if (session('response'))
         <h2>Response:</h2>
