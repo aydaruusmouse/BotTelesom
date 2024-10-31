@@ -19,5 +19,6 @@
         <h2>Response:</h2>
         <pre>{{ session('response') }}</pre>
     @endif
+    
 </body>
 </html>

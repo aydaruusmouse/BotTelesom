@@ -4,6 +4,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WhatsAppBotController;
 use App\Http\Controllers\SimDetailsController;
+use App\Http\Controllers\AdvertisementController;
+
+
 
 Route::post('/sim-details', [SimDetailsController::class, 'submitForm'])->name('sim.details.submit');
 
