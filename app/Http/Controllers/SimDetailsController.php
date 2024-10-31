@@ -29,9 +29,12 @@ class SimDetailsController extends Controller
             $responseMessage = "Error: " . $apiResponse['message'];
         }
 
-        // Output the response message
-        return back()->with('response', $responseMessage);
+         // Call the API function with the entered phone number
+    
+    // Return a JSON response instead of redirecting
+    return response()->json($apiResponse);
     }
+    
 
     private function callPingBukAPI($phoneNumber)
 {
