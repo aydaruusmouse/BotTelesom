@@ -19,6 +19,7 @@ class TroubleshootingController extends Controller
             'line_number' => 'required|numeric',
             'service_type' => 'required|string|in:Internet,Line',
             'problem_type' => 'required|string|in:DSL,Line,Fiber,P2P',
+            
         ]);
 
         try {
