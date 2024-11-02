@@ -34,6 +34,8 @@ class TransactionController extends Controller
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
+                'apiTokenUser' => 'mob#!Billing!*',
+                'apiTokenPwd' => 'De6$A7#ES282S@m@l!n.2BIoz',
             ])->post('http://10.10.0.7:8077/api/KaaliyeApi/NewFiberInstallation', [
                 'callsub' => $request->input('callsub'),
                 'price' => $request->input('price'),
@@ -46,6 +48,7 @@ class TransactionController extends Controller
                 'TranType' => $request->input('TranType'),
                 'description' => $request->input('description'),
             ]);
+            
 
             return response()->json([
                 'status' => $response->json('status'),
