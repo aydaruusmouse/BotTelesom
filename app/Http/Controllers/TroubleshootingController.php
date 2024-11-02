@@ -17,7 +17,7 @@ class TroubleshootingController extends Controller
         // Validate using 'line_number'
         $request->validate([
             'msisdn' => 'required|string',
-            'line_nubmer' => 'required|numeric',
+            'line_nubmer' => 'required|string',
             'service_type' => 'required|string|in:Internet,Line',
             'problem_type' => 'required|string|in:DSL,Line,Fiber,P2P',
         ]);
