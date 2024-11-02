@@ -17,7 +17,7 @@ class TroubleshootingController extends Controller
         // Validate using 'line_number'
         $request->validate([
             'msisdn' => 'required|string',
-            'line_number' => 'required|numeric',
+            'line_nubmer' => 'required|numeric',
             'service_type' => 'required|string|in:Internet,Line',
             'problem_type' => 'required|string|in:DSL,Line,Fiber,P2P',
         ]);
@@ -28,7 +28,7 @@ class TroubleshootingController extends Controller
                 'Content-Type' => 'application/json',
             ])->post('http://10.10.0.7:8077/api/KaaliyeApi/RequestTroubleshooting', [
                 'msisdn' => $request->input('msisdn'),
-                'line_nubmer' => $request->input('line_number'), // Map validated 'line_number' to 'line_nubmer'
+                'line_nubmer' => $request->input('line_nubmer'), // Map validated 'line_number' to 'line_nubmer'
                 'service_type' => $request->input('service_type'),
                 'problem_type' => $request->input('problem_type'),
             ]);
