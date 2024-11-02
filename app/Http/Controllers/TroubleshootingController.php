@@ -26,18 +26,26 @@ class TroubleshootingController extends Controller
             // Use 'line_nubmer' in the API request
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
+                'apiTokenUser' => 'mob#!Billing!*',
+                'apiTokenPwd' => 'De6$A7#ES282S@m@l!n.2BIoz',
             ])->post('http://10.10.0.7:8077/api/KaaliyeApi/RequestTroubleshooting', [
                 'msisdn' => $request->input('msisdn'),
-                'line_nubmer' => $request->input('line_nubmer'), // Map validated 'line_number' to 'line_nubmer'
+                'line_nubmer' => $request->input('line_nubmer'), 
                 'service_type' => $request->input('service_type'),
                 'problem_type' => $request->input('problem_type'),
-            ]);
+            ]);            
     
-            return response()->json([
-                'status' => $response->json('status'),
-                'message' => $response->json('Message'),
-                'data' => $response->json('Data'),
-            ]);
+            // Log the raw response body to verify its structure
+        \Log::info('Raw API Response', ['body' => $response->body()]);
+
+        // Decode the response body manually
+        $decodedResponse = json_decode($response->body(), true);
+
+        return response()->json([
+            'status' => $decodedResponse['status'] ?? null,
+            'message' => $decodedResponse['Message'] ?? null,
+            'data' => $decodedResponse['Data'] ?? null,
+        ]);
         } catch (\Exception $e) {
             \Log::error('Error in troubleshooting request: ' . $e->getMessage());
     
