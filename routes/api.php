@@ -18,7 +18,7 @@ Route::post('/sim-details', [SimDetailsController::class, 'submitForm'])->name('
 Route::post('/send-advertisement-sms', [SmsController::class, 'sendAdvertisementSms'])->name('send.advertisement.sms');
 
 Route::post('/new-fiber-installation', [TransactionController::class, 'newFiberInstallation'])->name('new.fiber.installation');
-
+                    
 Route::post('/request-troubleshooting', [TroubleshootingController::class, 'requestTroubleshooting'])->name('request.troubleshooting');
 
 Route::get('/user', function (Request $request) {

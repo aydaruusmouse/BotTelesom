@@ -20,7 +20,7 @@ Route::get('/activate-roaming-form', [RoamingController::class, 'showActivateRoa
 Route::get('/sim-details', [SimDetailsController::class, 'showForm'])->name('sim.details.form');
 // sms advertisement route
 Route::get('/sms-form', [SmsController::class, 'showForm'])->name('sms.form');
-Route::post('/send-advertisement-sms', [SmsController::class, 'sendAdvertisementSms'])->name('send.advertisement.sms');
+// Route::post('/send-advertisement-sms', [SmsController::class, 'sendAdvertisementSms'])->name('send.advertisement.sms');
 
 
 Route::get('/', function () {
