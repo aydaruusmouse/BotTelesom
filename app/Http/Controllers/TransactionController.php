@@ -79,11 +79,23 @@ class TransactionController extends Controller
             'wrongnumber' => 'required|string',
             'currency_code' => 'required|string',
         ]);
-
-        $msisdn = $request->input('msisdn');
+        
+        
         $transactionNumber = $request->input('transactionnumber');
         $wrongNumber = $request->input('wrongnumber');
         $currencyCode = $request->input('currency_code');
+        // Extract the msisdn from the request
+    $msisdn = $request->input('msisdn');
+
+    // Clean the msisdn by removing "whatsapp:" prefix and any extra spaces
+    $msisdn = str_replace('whatsapp:', '', $msisdn); // Remove "whatsapp:" prefix
+    $msisdn = str_replace('+', '', $msisdn); // Remove any '+' signs
+    $msisdn = preg_replace('/^\D/', '', $msisdn); // Remove any non-digit characters from the beginning
+    $msisdn = preg_replace('/[^0-9]/', '', $msisdn); // Remove any non-digit characters
+    $msisdn = trim($msisdn); // Trim any whitespace
+
+    // Log the cleaned msisdn for debugging purposes
+    \Log::info('Processed MSISDN:', ['msisdn' => $msisdn]);
 
         try {
             $response = Http::withHeaders([
