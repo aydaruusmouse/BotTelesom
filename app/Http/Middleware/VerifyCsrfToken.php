@@ -17,5 +17,6 @@ class VerifyCsrfToken extends Middleware
     'https://2115-154-115-251-98.ngrok-free.app/api/webhook/twilio',
     'api/sim-details', // Ensure you include 'api/' here
     '/send-advertisement-sms',
+    'send-message',
     ];
 }

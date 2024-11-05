@@ -8,6 +8,10 @@ use App\Http\Controllers\SmsController;
 use App\Http\Controllers\RoamingController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\TroubleshootingController;
+use App\Http\Controllers\ChatwootController;
+
+Route::post('/send-message', [ChatwootController::class, 'sendMessage']);
+Route::post('/webhook/incoming-message', [ChatwootController::class, 'receiveIncomingMessage']);
 
 Route::post('/block-wrong-transaction', [TransactionController::class, 'blockWrongTransaction'])->name('block.wrong.transaction');
 

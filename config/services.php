@@ -34,5 +34,9 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-
+   
+    'chatwoot' => [
+        'api_access_token' => env('CHATWOOT_API_ACCESS_TOKEN'),
+    ],
+    
 ];
