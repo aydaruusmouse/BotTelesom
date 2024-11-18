@@ -22,7 +22,13 @@ Route::get('/sim-details', [SimDetailsController::class, 'showForm'])->name('sim
 Route::get('/sms-form', [SmsController::class, 'showForm'])->name('sms.form');
 // Route::post('/send-advertisement-sms', [SmsController::class, 'sendAdvertisementSms'])->name('send.advertisement.sms');
 
-
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+
+// For testing with Blade template
+Route::get('/subscription', function () {
+    return view('subscription');
+})->name('subscription');

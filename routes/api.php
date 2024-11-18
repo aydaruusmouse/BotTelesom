@@ -9,9 +9,16 @@ use App\Http\Controllers\RoamingController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\TroubleshootingController;
 use App\Http\Controllers\ChatwootController;
+use App\Http\Controllers\SubscriptionController;
+
+Route::post('/check-subscription', [SubscriptionController::class, 'checkSubscription'])->name('check.subscription');
+Route::post('/subscribe', [SubscriptionController::class, 'subscribe'])->name('subscribe');
+Route::post('/unsubscribe', [SubscriptionController::class, 'unsubscribe'])->name('unsubscribe');
 
 Route::post('/send-message', [ChatwootController::class, 'sendMessage']);
 Route::post('/webhook/incoming-message', [ChatwootController::class, 'receiveIncomingMessage']);
+
+// Route::post('/webhook/chatwoot/incoming-message', [ChatwootController::class, 'handleIncomingMessage']);
 
 Route::post('/block-wrong-transaction', [TransactionController::class, 'blockWrongTransaction'])->name('block.wrong.transaction');
 
@@ -34,3 +41,9 @@ Route::get('/user', function (Request $request) {
 // Define your API routes here
 Route::post('whatsapp/test', [WhatsAppBotController::class, 'testMessage']);
 Route::post('whatsapp/incoming', [WhatsAppBotController::class, 'handleIncomingMessage']);
+
+
+
+// Route::middleware('auth:sanctum')->group(function () {
+//     Route::post('/activate-roaming', [RoamingController::class, 'activateRoaming']);
+// });
