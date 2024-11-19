@@ -27,17 +27,24 @@ class ExchangeRateController extends Controller
             $responseData = $response->json();
 
             if ($response->successful()) {
-                // Return data to the view
-                return view('exchange_rate', ['data' => $responseData['Data']]);
+                // Return the data as JSON response
+                return response()->json([
+                    'status' => 'success',
+                    'data' => $responseData['Data']
+                ], 200);
             }
 
             // Handle API errors
-            return view('exchange_rate', ['error' => $responseData['Message'] ?? 'An error occurred.']);
+            return response()->json([
+                'status' => 'error',
+                'message' => $responseData['Message'] ?? 'An error occurred.'
+            ], $response->status());
         } catch (\Exception $e) {
             // Handle connection or other exceptions
-            return view('exchange_rate', [
-                'error' => 'Failed to fetch exchange rate: ' . $e->getMessage(),
-            ]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch exchange rate: ' . $e->getMessage(),
+            ], 500);
         }
     }
 }
