@@ -40,7 +40,9 @@ Route::get('/user', function (Request $request) {
 
 // Define your API routes here
 Route::post('whatsapp/test', [WhatsAppBotController::class, 'testMessage']);
-Route::post('whatsapp/incoming', [WhatsAppBotController::class, 'handleIncomingMessage']);
+
+
+// Route::post('whatsapp/incoming', [WhatsAppBotController::class, 'handleIncomingMessage']);
 
 
 

@@ -914,20 +914,7 @@ private function callPingBukAPI($phoneNumber)
         return $responseMessage;
     }
 
-    private function sendMessage($to, $message)
-    {
-        $accountSid = 'AC38dcca7bf336dcf27b4027f401338024';
-        $authToken = '3ecd5a872109f5a99b4375e616335b32';
-        $twilioNumber = 'whatsapp:+14155238886';
-
-        $client = new Client($accountSid, $authToken);
-
-        try {
-            $client->messages->create($to, ['from' => $twilioNumber, 'body' => $message]);
-        } catch (\Exception $e) {
-            \Log::error('Failed to send message: ' . $e->getMessage());
-        }
-    }
+    
 
     protected function callPinPukAPI($number)
     {

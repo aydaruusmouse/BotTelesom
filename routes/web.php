@@ -21,6 +21,7 @@ Route::get('/sim-details', [SimDetailsController::class, 'showForm'])->name('sim
 // sms advertisement route
 Route::get('/sms-form', [SmsController::class, 'showForm'])->name('sms.form');
 // Route::post('/send-advertisement-sms', [SmsController::class, 'sendAdvertisementSms'])->name('send.advertisement.sms');
+Route::post('/whatsapp/test', [WhatsAppBotController::class, 'testMessage'])->name('whatsapp.test');
 
 Route::get('/', function () {
     return view('welcome');
