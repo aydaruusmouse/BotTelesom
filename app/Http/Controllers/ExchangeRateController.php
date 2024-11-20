@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -27,11 +28,8 @@ class ExchangeRateController extends Controller
             $responseData = $response->json();
 
             if ($response->successful()) {
-                // Return the data as JSON response
-                return response()->json([
-                    'status' => 'success',
-                    'data' => $responseData['Data']
-                ], 200);
+                // Return the first object in Data as a JSON response
+                return response()->json($responseData['Data'][0], 200);
             }
 
             // Handle API errors
