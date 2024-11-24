@@ -18,5 +18,6 @@ class VerifyCsrfToken extends Middleware
     'api/sim-details', // Ensure you include 'api/' here
     '/send-advertisement-sms',
     'send-message',
+    'api/subscribe', // Add this to exclude it from CSRF protection
     ];
 }
