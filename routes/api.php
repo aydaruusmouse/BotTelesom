@@ -10,6 +10,9 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\TroubleshootingController;
 use App\Http\Controllers\ChatwootController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\USSDController;
+
+Route::post('/ussd/process', [USSDController::class, 'processUSSD'])->name('ussd.process'); // Process the form submission
 
 Route::post('/check-subscription', [SubscriptionController::class, 'checkSubscription'])->name('check.subscription');
 Route::post('/subscribe', [SubscriptionController::class, 'subscribe'])->name('subscribe');

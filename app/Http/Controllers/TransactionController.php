@@ -11,59 +11,70 @@ class TransactionController extends Controller
 
     // New Fiber Installation
 
-    public function showFiberInstallationForm()
-    {
-        return view('fiber_installation_form'); // Blade template for the form
-    }
-
     public function newFiberInstallation(Request $request)
-    {
-        $request->validate([
-            'callsub' => 'required|string',
-            'price' => 'required|numeric',
-            'paymentMethod' => 'required|string',
-            'contactNumber' => 'required|string',
-            'Address' => 'required|string',
-            'Center' => 'required|string',
-            'Discount' => 'required|numeric',
-            'Speed' => 'required|string',
-            'TranType' => 'required|string',
-            'description' => 'required|string',
+{
+    $request->validate([
+        'callsub' => 'required|string',
+        'price' => 'required|numeric',
+        'paymentMethod' => 'required|string',
+        'contactNumber' => 'required|string',
+        'Address' => 'required|string',
+        'Center' => 'required|string',
+        'Discount' => 'required|numeric',
+        'Speed' => 'required|string',
+        'TranType' => 'required|string',
+        'description' => 'required|string',
+    ]);
+
+    // Clean callsub and contactNumber
+    $callsub = $request->input('callsub');
+    $contactNumber = $request->input('contactNumber');
+
+    // Remove "whatsapp:" prefix, "+" signs, and non-digit characters
+    $callsub = str_replace(['whatsapp:', '+'], '', $callsub);
+    $callsub = preg_replace('/[^0-9]/', '', $callsub);
+
+    $contactNumber = str_replace(['whatsapp:', '+'], '', $contactNumber);
+    $contactNumber = preg_replace('/[^0-9]/', '', $contactNumber);
+
+    // Log the cleaned values for debugging purposes
+    \Log::info('Processed callsub and contactNumber:', [
+        'callsub' => $callsub,
+        'contactNumber' => $contactNumber,
+    ]);
+
+    try {
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'apiTokenUser' => 'mob#!Billing!*',
+            'apiTokenPwd' => 'De6$A7#ES282S@m@l!n.2BIoz',
+        ])->post('http://10.10.0.7:8077/api/KaaliyeApi/NewFiberInstallation', [
+            'callsub' => $callsub,
+            'price' => $request->input('price'),
+            'paymentMethod' => $request->input('paymentMethod'),
+            'contactNumber' => $contactNumber,
+            'Address' => $request->input('Address'),
+            'Center' => $request->input('Center'),
+            'Discount' => $request->input('Discount'),
+            'Speed' => $request->input('Speed'),
+            'TranType' => $request->input('TranType'),
+            'description' => $request->input('description'),
         ]);
 
-        try {
-            $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
-                'apiTokenUser' => 'mob#!Billing!*',
-                'apiTokenPwd' => 'De6$A7#ES282S@m@l!n.2BIoz',
-            ])->post('http://10.10.0.7:8077/api/KaaliyeApi/NewFiberInstallation', [
-                'callsub' => $request->input('callsub'),
-                'price' => $request->input('price'),
-                'paymentMethod' => $request->input('paymentMethod'),
-                'contactNumber' => $request->input('contactNumber'),
-                'Address' => $request->input('Address'),
-                'Center' => $request->input('Center'),
-                'Discount' => $request->input('Discount'),
-                'Speed' => $request->input('Speed'),
-                'TranType' => $request->input('TranType'),
-                'description' => $request->input('description'),
-            ]);
-            
+        return response()->json([
+            'status' => $response->json('status'),
+            'message' => $response->json('Message'),
+            'data' => $response->json('Data'),
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('Error in fiber installation: ' . $e->getMessage());
 
-            return response()->json([
-                'status' => $response->json('status'),
-                'message' => $response->json('Message'),
-                'data' => $response->json('Data'),
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('Error in fiber installation: ' . $e->getMessage());
-
-            return response()->json([
-                'error' => 'An error occurred while processing the fiber installation.',
-                'details' => $e->getMessage(),
-            ], 500);
-        }
+        return response()->json([
+            'error' => 'An error occurred while processing the fiber installation.',
+            'details' => $e->getMessage(),
+        ], 500);
     }
+}
 
     
     public function showBlockTransactionForm()

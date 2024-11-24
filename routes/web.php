@@ -8,6 +8,9 @@ use App\Http\Controllers\SmsController;
 use App\Http\Controllers\RoamingController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\TroubleshootingController;
+use App\Http\Controllers\USSDController;
+
+Route::get('/ussd/menu', [USSDController::class, 'showMenuForm'])->name('ussd.menu'); // Display the form
 
 Route::get('/block-transaction-form', [TransactionController::class, 'showBlockTransactionForm'])->name('block.transaction.form');
 Route::get('/fiber-installation-form', [TransactionController::class, 'showFiberInstallationForm'])->name('fiber.installation.form');
