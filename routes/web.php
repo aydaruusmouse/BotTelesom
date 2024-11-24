@@ -9,6 +9,11 @@ use App\Http\Controllers\RoamingController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\TroubleshootingController;
 use App\Http\Controllers\USSDController;
+use App\Http\Controllers\OtpController;
+
+Route::get('/send-otp', [OtpController::class, 'showForm'])->name('otp.form');
+
+
 
 Route::get('/ussd/menu', [USSDController::class, 'showMenuForm'])->name('ussd.menu'); // Display the form
 

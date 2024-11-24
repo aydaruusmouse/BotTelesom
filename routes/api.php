@@ -11,6 +11,8 @@ use App\Http\Controllers\TroubleshootingController;
 use App\Http\Controllers\ChatwootController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\USSDController;
+use App\Http\Controllers\OtpController;
+Route::post('/send-otp', [OtpController::class, 'sendOtp'])->name('otp.send');
 
 Route::post('/ussd/process', [USSDController::class, 'processUSSD'])->name('ussd.process'); // Process the form submission
 
