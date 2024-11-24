@@ -14,7 +14,11 @@ use App\Http\Controllers\USSDController;
 use App\Http\Controllers\OtpController;
 Route::post('/send-otp', [OtpController::class, 'sendOtp'])->name('otp.send');
 
-Route::post('/ussd/process', [USSDController::class, 'processUSSD'])->name('ussd.process'); // Process the form submission
+// Route for initiating the USSD session (first request with empty data)
+Route::post('/ussd/initiatesession', [UssdController::class, 'initiateUssdSession']);
+// Route for continuing the USSD session with user data (second request with user input)
+Route::post('/ussd/continuesession', [UssdController::class, 'continueUssdSession']);
+// Route::post('/ussd/process', [USSDController::class, 'processUSSD'])->name('ussd.process'); // Process the form submission
 
 Route::post('/check-subscription', [SubscriptionController::class, 'checkSubscription'])->name('check.subscription');
 Route::post('/subscribe', [SubscriptionController::class, 'subscribe'])->name('subscribe');
