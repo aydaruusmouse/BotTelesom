@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -9,43 +8,33 @@ class USSDController extends Controller
 {
     public function showMenuForm()
     {
-        return view('menu'); // Display the initial menu form
+        // Generate a session ID and pass it to the view
+        $sessionId = $this->generateSessionId();
+        return view('menu', compact('sessionId'));
     }
 
-    // Function to generate a 12-digit session ID
     public function generateSessionId()
     {
         return mt_rand(100000000000, 999999999999);  // Generate a 12-digit random number
     }
 
-    // Function to handle the first cURL request with empty data
     public function initiateUssdSession(Request $request)
     {
-        // Extract and clean the msisdn from the request
-        $msisdn = $request->input('msisdn');
-
-        // Clean the msisdn by removing "whatsapp:" prefix and any extra spaces
-        $msisdn = str_replace('whatsapp:', '', $msisdn); // Remove "whatsapp:" prefix
-        $msisdn = str_replace('+', '', $msisdn); // Remove any '+' signs
-        $msisdn = preg_replace('/^\D/', '', $msisdn); // Remove any non-digit characters from the beginning
-        $msisdn = preg_replace('/[^0-9]/', '', $msisdn); // Remove any non-digit characters
-        $msisdn = trim($msisdn); // Trim any whitespace and extra data like commas
+        $msisdn = $this->cleanMsisdn($request->input('msisdn'));
 
         // Validate MSISDN
         if (empty($msisdn) || strlen($msisdn) < 10) {
-            return response()->json(['error' => 'Invalid MSISDN format'], 400);  // Ensure valid length and non-empty value
+            return response()->json(['error' => 'Invalid MSISDN format'], 400);
         }
 
         // Generate the 12-digit session ID
         $sessionId = $this->generateSessionId();
-
-        // Example input values (this should come from the request or user input)
         $imsi = '123';
         $code = '*406#';
         $service = '406';
 
         // Perform the first cURL request with empty data
-        $response = Http::withHeaders([
+        $response1 = Http::withHeaders([
             'Content-Type' => 'application/json',
         ])->post('http://172.16.53.109:8083/ussd-plus-plus/web/ussd-menu', [
             'action' => 'continue',
@@ -54,59 +43,52 @@ class USSDController extends Controller
             'sessionid' => $sessionId,
             'imsi' => $imsi,
             'msisdn' => $msisdn,
-            'data' => '',  // First request with empty data
+            'data' => '',  // Empty data for the first request
         ]);
 
-        // Handle the response (you can return it or process as needed)
-        return $response->json();
+        // Check if the first request was successful
+        if ($response1->failed()) {
+            return response()->json(['error' => 'Failed to initiate session'], 500);
+        }
+
+        // Now process the second cURL request with user data
+        $userData = $request->input('data'); // User input data (1, 2, 3, or 4)
+
+        // Ensure the user provided valid data (1, 2, 3, or 4)
+        if (!in_array($userData, ['1', '2', '3', '4'])) {
+            return response()->json(['error' => 'Invalid data input. Must be 1, 2, 3, or 4.'], 400);
+        }
+
+        // Perform the second cURL request with the user data
+        $response2 = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post('http://172.16.53.109:8083/ussd-plus-plus/web/ussd-menu', [
+            'action' => 'continue',
+            'service' => $service,
+            'code' => $code,
+            'sessionid' => $sessionId,  // Same session ID as the first request
+            'imsi' => $imsi,
+            'msisdn' => $msisdn,
+            'data' => $userData,  // User-provided data
+        ]);
+
+        // Check if the second request was successful
+        if ($response2->failed()) {
+            return response()->json(['error' => 'Failed to continue session'], 500);
+        }
+
+        // Return the response from the second request (balance data)
+        return response()->json($response2->json());
     }
 
-    // Function to handle the second cURL request with user input data
-    public function continueUssdSession(Request $request)
+    private function cleanMsisdn($msisdn)
     {
-        // Retrieve the session ID and user input data from the request
-        $sessionId = $request->input('sessionid');
-        $data = $request->input('data'); // Data entered by the user (e.g., "1")
-        
-        // Extract and clean the msisdn from the request
-        $msisdn = $request->input('msisdn');
         $msisdn = str_replace('whatsapp:', '', $msisdn); // Remove "whatsapp:" prefix
         $msisdn = str_replace('+', '', $msisdn); // Remove any '+' signs
         $msisdn = preg_replace('/^\D/', '', $msisdn); // Remove any non-digit characters from the beginning
         $msisdn = preg_replace('/[^0-9]/', '', $msisdn); // Remove any non-digit characters
         $msisdn = trim($msisdn); // Trim any whitespace and extra data
 
-        // Validate MSISDN
-        if (empty($msisdn) || strlen($msisdn) < 10) {
-            return response()->json(['error' => 'Invalid MSISDN format'], 400);
-        }
-
-        // Validate data (e.g., it should be one of the options like "1", "2", etc.)
-        if (empty($data)) {
-            return response()->json(['error' => 'Data is required for the second request'], 400);
-        }
-
-        // Default values (can be changed based on user request)
-        $service = '406';
-        $code = '*406#';
-        $imsi = '123';
-
-        // Perform the second cURL request with user data
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-        ])->post('http://172.16.53.109:8083/ussd-plus-plus/web/ussd-menu', [
-            'action' => 'continue',
-            'service' => $service,
-            'code' => $code,
-            'sessionid' => $sessionId,  // Use the same session ID from the first request
-            'imsi' => $imsi,
-            'msisdn' => $msisdn,
-            'data' => $data,  // Data passed by the user
-        ]);
-
-        // Handle the response (you can return it or process as needed)
-        return $response->json();
+        return $msisdn;
     }
-
-
 }
