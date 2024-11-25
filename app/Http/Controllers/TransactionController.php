@@ -83,55 +83,62 @@ class TransactionController extends Controller
     }
 
     public function blockWrongTransaction(Request $request)
-    {
-        $request->validate([
-            'msisdn' => 'required|string',
-            'transactionnumber' => 'required|string',
-            'wrongnumber' => 'required|string',
-            'currency_code' => 'required|string',
-        ]);
-        
-        
-        $transactionNumber = $request->input('transactionnumber');
-        $wrongNumber = $request->input('wrongnumber');
-        $currencyCode = $request->input('currency_code');
-        // Extract the msisdn from the request
+{
+    $request->validate([
+        'msisdn' => 'required|string',
+        'transactionnumber' => 'required|string',
+        'wrongnumber' => 'required|string',
+        'currency_code' => 'required|string',
+    ]);
+
+    $transactionNumber = $request->input('transactionnumber');
+    $wrongNumber = $request->input('wrongnumber');
+    $currencyCode = $request->input('currency_code');
     $msisdn = $request->input('msisdn');
 
     // Clean the msisdn by removing "whatsapp:" prefix and any extra spaces
-    $msisdn = str_replace('whatsapp:', '', $msisdn); // Remove "whatsapp:" prefix
-    $msisdn = str_replace('+', '', $msisdn); // Remove any '+' signs
-    $msisdn = preg_replace('/^\D/', '', $msisdn); // Remove any non-digit characters from the beginning
-    $msisdn = preg_replace('/[^0-9]/', '', $msisdn); // Remove any non-digit characters
-    $msisdn = trim($msisdn); // Trim any whitespace
+    $msisdn = str_replace('whatsapp:', '', $msisdn);
+    $msisdn = str_replace('+', '', $msisdn);
+    $msisdn = preg_replace('/^\D/', '', $msisdn);
+    $msisdn = preg_replace('/[^0-9]/', '', $msisdn);
+    $msisdn = trim($msisdn);
 
     // Log the cleaned msisdn for debugging purposes
     \Log::info('Processed MSISDN:', ['msisdn' => $msisdn]);
 
-        try {
-            $response = Http::withHeaders([
-                'apiTokenUser' => 'mob#!Billing!*',
-                'apiTokenPwd' => 'De6$A7#ES282S@m@l!n.2BIoz',
-                'Content-Type' => 'application/json',
-            ])->post('http://10.10.0.7:8077/api/KaaliyeApi/BlockWrongTransaction', [
-                'msisdn' => $msisdn,
-                'transactionnumber' => $transactionNumber,
-                'wrongnumber' => $wrongNumber,
-                'currency_code' => $currencyCode,
-            ]);
-
-            return response()->json([
-                'status' => $response->json('status'),
-                'message' => $response->json('Message'),
-                'data' => $response->json('Data'),
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('Error in blocking transaction: ' . $e->getMessage());
-
-            return response()->json([
-                'error' => 'An error occurred while processing the transaction.',
-                'details' => $e->getMessage(),
-            ], 500);
-        }
+    // Extract only "Dollar" or "Shilling" from the currency_code
+    if (str_contains($currencyCode, 'Zaad')) {
+        $currencyCode = str_replace('Zaad', '', $currencyCode); // Remove "Zaad" prefix
+        $currencyCode = trim($currencyCode); // Remove any extra spaces
     }
+
+    \Log::info('Processed Currency Code:', ['currency_code' => $currencyCode]);
+
+    try {
+        $response = Http::withHeaders([
+            'apiTokenUser' => 'mob#!Billing!*',
+            'apiTokenPwd' => 'De6$A7#ES282S@m@l!n.2BIoz',
+            'Content-Type' => 'application/json',
+        ])->post('http://10.10.0.7:8077/api/KaaliyeApi/BlockWrongTransaction', [
+            'msisdn' => $msisdn,
+            'transactionnumber' => $transactionNumber,
+            'wrongnumber' => $wrongNumber,
+            'currency_code' => $currencyCode,
+        ]);
+
+        return response()->json([
+            'status' => $response->json('status'),
+            'message' => $response->json('Message'),
+            'data' => $response->json('Data'),
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('Error in blocking transaction: ' . $e->getMessage());
+
+        return response()->json([
+            'error' => 'An error occurred while processing the transaction.',
+            'details' => $e->getMessage(),
+        ], 500);
+    }
+}
+
 }
