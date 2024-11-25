@@ -37,10 +37,19 @@ class TransactionController extends Controller
     $contactNumber = str_replace(['whatsapp:', '+'], '', $contactNumber);
     $contactNumber = preg_replace('/[^0-9]/', '', $contactNumber);
 
+    // Map TranType to API-required values
+    $tranType = $request->input('TranType');
+    if (str_contains($tranType, 'Dollar')) {
+        $tranType = 'USD'; // Map to USD for Dollar
+    } elseif (str_contains($tranType, 'Shilling')) {
+        $tranType = 'SLSH'; // Map to SLSH for Shilling
+    }
+
     // Log the cleaned values for debugging purposes
-    \Log::info('Processed callsub and contactNumber:', [
+    \Log::info('Processed callsub, contactNumber, and TranType:', [
         'callsub' => $callsub,
         'contactNumber' => $contactNumber,
+        'TranType' => $tranType,
     ]);
 
     try {
@@ -57,7 +66,7 @@ class TransactionController extends Controller
             'Center' => $request->input('Center'),
             'Discount' => $request->input('Discount'),
             'Speed' => $request->input('Speed'),
-            'TranType' => $request->input('TranType'),
+            'TranType' => $tranType, // Use the mapped value
             'description' => $request->input('description'),
         ]);
 
