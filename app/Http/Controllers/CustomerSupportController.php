@@ -62,19 +62,28 @@ class CustomerSupportController extends Controller
                 return false;
             });
 
-            // Log filtered data for debugging purposes
-            \Log::info('Filtered Enabled Data:', $filteredData->toArray());
+            // Initialize a counter for creating dynamic service names
+            $serviceCounter = 1;
+            $formattedServices = [];
 
-            // Return all enabled items as separate objects
-            $enabledItems = $filteredData->mapWithKeys(function ($item) {
-                return [$item['CustomerNo'] => $item]; // Key by CustomerNo or any unique identifier
-            });
+            // Iterate through the filtered data and create a new structure
+            foreach ($filteredData as $item) {
+                $formattedServices['Service' . $serviceCounter] = [
+                    'CustomerNo' => $item['CustomerNo'],
+                    'Name' => $item['Name'],
+                    'ServiceType' => $item['ServiceType'],
+                    'ServiceInfo' => $item['ServiceInfo'],
+                    'CustomerSite' => $item['CustomerSite'],
+                    'Status' => $item['Status'],
+                ];
+                $serviceCounter++; // Increment the counter for the next service
+            }
 
             // Log the final enabled items
-            \Log::info('Enabled Items:', $enabledItems->toArray());
+            \Log::info('Formatted Enabled Services:', $formattedServices);
 
-            // Return all enabled items as individual objects
-            return response()->json($enabledItems, 200);
+            // Return the formatted services as individual objects
+            return response()->json($formattedServices, 200);
         }
 
         return response()->json(['error' => 'Failed to fetch references from API', 'response' => $response->body()], 500);
