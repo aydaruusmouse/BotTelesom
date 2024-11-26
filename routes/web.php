@@ -10,6 +10,10 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\TroubleshootingController;
 use App\Http\Controllers\USSDController;
 use App\Http\Controllers\OtpController;
+use App\Http\Controllers\CustomerSupportController;
+
+Route::get('/support', [CustomerSupportController::class, 'index'])->name('support.index');
+Route::post('/support/get-references', [CustomerSupportController::class, 'getReferences'])->name('support.getReferences');
 
 Route::get('/send-otp', [OtpController::class, 'showForm'])->name('otp.form');
 

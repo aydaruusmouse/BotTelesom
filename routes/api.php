@@ -12,6 +12,11 @@ use App\Http\Controllers\ChatwootController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\USSDController;
 use App\Http\Controllers\OtpController;
+use App\Http\Controllers\CustomerSupportController;
+
+Route::post('/support/get-references', [CustomerSupportController::class, 'getReferences'])->name('support.getReferences');
+
+
 Route::post('/send-otp', [OtpController::class, 'sendOtp'])->name('otp.send');
 
 // Route for initiating the USSD session (first request with empty data)
