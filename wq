@@ -1,0 +1,2308 @@
+[1mdiff --git a/.editorconfig b/.editorconfig[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/.env b/.env[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mindex 372995d..453add8[m
+[1m--- a/.env[m
+[1m+++ b/.env[m
+[36m@@ -1,7 +1,7 @@[m
+ APP_NAME=Laravel[m
+[31m-APP_ENV=production[m
+[32m+[m[32mAPP_ENV=local[m
+ APP_KEY=base64:yUwe6Lew/PkGxoNpxavXhsN4AqJZLA/dWC2x3HxvXKM=[m
+[31m-APP_DEBUG=false[m
+[32m+[m[32mAPP_DEBUG=true[m
+ APP_TIMEZONE=UTC[m
+ APP_URL=http://172.16.53.200:800[m
+ [m
+[36m@@ -68,13 +68,7 @@[m [mAWS_USE_PATH_STYLE_ENDPOINT=false[m
+ [m
+ VITE_APP_NAME="${APP_NAME}"[m
+ [m
+[31m-[m
+[31m-SESSION_DRIVER=cookie[m
+[31m-SESSION_SECURE_COOKIE=true[m
+[31m-SESSION_HTTP_ONLY=true[m
+[31m-[m
+[31m-AUTH_GUARD=web[m
+[31m-AUTH_PASSWORD_BROKER=users[m
+[31m-AUTH_MODEL=App\Models\User[m
+[31m-AUTH_PASSWORD_RESET_TOKEN_TABLE=password_reset_tokens[m
+[31m-AUTH_PASSWORD_TIMEOUT=10800[m
+[32m+[m[32mTWILIO_SID="AC38dcca7bf336dcf27b4027f401338024"[m
+[32m+[m[32mTWILIO_AUTH_TOKEN="e8942ed61298b38c3427a2c9df896a15"[m
+[32m+[m[32mTWILIO_WHATSAPP_NUMBER="+14155238886"[m
+[32m+[m[32mCHATWOOT_API_ACCESS_TOKEN="o2FMxC3vHsPguvRvEfW5QuLP"[m
+[1mdiff --git a/.env.example b/.env.example[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/.gitattributes b/.gitattributes[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/.gitignore b/.gitignore[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/README.md b/README.md[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Admin/Controllers/AuthController.php b/app/Admin/Controllers/AuthController.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Admin/Controllers/ExampleController.php b/app/Admin/Controllers/ExampleController.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Admin/Controllers/HomeController.php b/app/Admin/Controllers/HomeController.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Admin/bootstrap.php b/app/Admin/bootstrap.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Admin/routes.php b/app/Admin/routes.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Helpers/XMLResponse.php b/app/Helpers/XMLResponse.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Http/Controllers/ChatwootController.php b/app/Http/Controllers/ChatwootController.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Http/Controllers/Controller.php b/app/Http/Controllers/Controller.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Http/Controllers/CustomerSupportController.php b/app/Http/Controllers/CustomerSupportController.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mindex 99c7623..e8a3d71[m
+[1m--- a/app/Http/Controllers/CustomerSupportController.php[m
+[1m+++ b/app/Http/Controllers/CustomerSupportController.php[m
+[36m@@ -14,96 +14,85 @@[m [mpublic function index()[m
+     }[m
+ [m
+     public function getReferences(Request $request)[m
+[31m-    {[m
+[31m-        try {[m
+[31m-            // Validate the input[m
+[31m-            $validated = $request->validate([[m
+[31m-                'callsub' => 'required|string|max:10', // Adjust rules based on expected input[m
+[31m-                'problem_type' => 'required|in:Internet,Line', // Must be 'Internet' or 'Line'[m
+[31m-            ]);[m
+[31m-    [m
+[31m-            $callsub = $validated['callsub'];[m
+[31m-            $problemType = $validated['problem_type'];[m
+[31m-    [m
+[31m-            // Default UserId[m
+[31m-            $defaultUserId = 'imll';[m
+[31m-    [m
+[31m-            // Call the GetCustomerReferences API[m
+[31m-            $response = Http::withHeaders([[m
+[31m-                'apiTokenUser' => 'CRMUser',[m
+[31m-                'apiTokenPwd' => 'ZEWOALJNADSLLAIE321@!',[m
+[31m-            ])->timeout(10)->post('http://10.55.1.143:8983/api/CRMApi/GetCustomerReferences/?Status=Enabled', [[m
+[31m-                'Callsub' => $callsub,[m
+[31m-                'UserId' => $defaultUserId,[m
+[31m-            ]);[m
+[31m-    [m
+[31m-            if ($response->successful()) {[m
+[31m-                $decodedResponse = json_decode($response->body(), true);[m
+[31m-    [m
+[31m-                if (json_last_error() !== JSON_ERROR_NONE) {[m
+[31m-                    return response()->json(['error' => 'API returned invalid JSON', 'response' => $response->body()], 500);[m
+[32m+[m[32m{[m
+[32m+[m[32m    try {[m
+[32m+[m[32m        $callsub = $request->input('callsub');[m
+[32m+[m[32m        $problemType = $request->input('problem_type'); // 'Internet' or 'Line'[m
+[32m+[m
+[32m+[m[32m        // Default UserId[m
+[32m+[m[32m        $defaultUserId = 'imll';[m
+[32m+[m
+[32m+[m[32m        // Call the GetCustomerReferences API[m
+[32m+[m[32m        $response = Http::withHeaders([[m
+[32m+[m[32m            'apiTokenUser' => 'CRMUser',[m
+[32m+[m[32m            'apiTokenPwd' => 'ZEWOALJNADSLLAIE321@!',[m
+[32m+[m[32m        ])->timeout(10)->post('http://10.55.1.143:8983/api/CRMApi/GetCustomerReferences/?Status=Enabled', [[m
+[32m+[m[32m            'Callsub' => $callsub,[m
+[32m+[m[32m            'UserId' => $defaultUserId,[m
+[32m+[m[32m        ]);[m
+[32m+[m
+[32m+[m[32m        if ($response->successful()) {[m
+[32m+[m[32m            $decodedResponse = json_decode($response->body(), true);[m
+[32m+[m[32m            if (json_last_error() !== JSON_ERROR_NONE) {[m
+[32m+[m[32m                return response()->json(['error' => 'API returned invalid JSON', 'response' => $response->body()], 500);[m
+[32m+[m[32m            }[m
+[32m+[m
+[32m+[m[32m            // Get the raw data[m
+[32m+[m[32m            $data = $decodedResponse['Data'] ?? [];[m
+[32m+[m[32m            if (!is_array($data)) {[m
+[32m+[m[32m                return response()->json(['error' => 'Unexpected API response structure', 'response' => $decodedResponse], 500);[m
+[32m+[m[32m            }[m
+[32m+[m
+[32m+[m[32m            // Filter based on problem type and status[m
+[32m+[m[32m            $filteredData = collect($data)->filter(function ($item) use ($problemType) {[m
+[32m+[m[32m                // Ensure the item is enabled[m
+[32m+[m[32m                if ($item['Status'] !== 'Enabled') {[m
+[32m+[m[32m                    return false;[m
+                 }[m
+[31m-    [m
+[31m-                // Get the raw data[m
+[31m-                $data = $decodedResponse['Data'] ?? [];[m
+[31m-                if (!is_array($data)) {[m
+[31m-                    return response()->json(['error' => 'Unexpected API response structure', 'response' => $decodedResponse], 500);[m
+[32m+[m
+[32m+[m[32m                // If "Internet" is selected, show only internet-related services[m
+[32m+[m[32m                if ($problemType === 'Internet') {[m
+[32m+[m[32m                    return in_array($item['ServiceType'], ['DSL', 'FIBER', 'P2P']);[m
+                 }[m
+[31m-    [m
+[31m-                // Filter based on problem type and status[m
+[31m-                $filteredData = collect($data)->filter(function ($item) use ($problemType) {[m
+[31m-                    // Ensure the item is enabled[m
+[31m-                    if ($item['Status'] !== 'Enabled') {[m
+[31m-                        return false;[m
+[31m-                    }[m
+[31m-    [m
+[31m-                    // If "Internet" is selected, show only internet-related services[m
+[31m-                    if ($problemType === 'Internet') {[m
+[31m-                        return in_array($item['ServiceType'], ['DSL', 'FIBER', 'P2P']);[m
+[31m-                    }[m
+[31m-                    // If "Line" is selected, show only line-related services[m
+[31m-                    elseif ($problemType === 'Line') {[m
+[31m-                        return $item['ServiceType'] === 'LINE';[m
+[31m-                    }[m
+[31m-    [m
+[31m-                    return false;[m
+[31m-                });[m
+[31m-    [m
+[31m-                // Initialize a counter for creating dynamic service names[m
+[31m-                $serviceCounter = 1;[m
+[31m-                $formattedServices = [];[m
+[31m-    [m
+[31m-                // Iterate through the filtered data and create a new structure[m
+[31m-                foreach ($filteredData as $item) {[m
+[31m-                    $formattedServices['Service' . $serviceCounter] = [[m
+[31m-                        'CustomerNo' => $item['CustomerNo'],[m
+[31m-                        'Name' => $item['Name'],[m
+[31m-                        'ServiceType' => $item['ServiceType'],[m
+[31m-                        'ServiceInfo' => $item['ServiceInfo'],[m
+[31m-                        'CustomerSite' => $item['CustomerSite'],[m
+[31m-                        'Status' => $item['Status'],[m
+[31m-                    ];[m
+[31m-                    $serviceCounter++; // Increment the counter for the next service[m
+[32m+[m[32m                // If "Line" is selected, show only line-related services[m
+[32m+[m[32m                elseif ($problemType === 'Line') {[m
+[32m+[m[32m                    return $item['ServiceType'] === 'LINE';[m
+                 }[m
+[31m-    [m
+[31m-                // Log the final enabled items[m
+[31m-                \Log::info('Formatted Enabled Services:', $formattedServices);[m
+[31m-    [m
+[31m-                // Return the formatted services as individual objects[m
+[31m-                return response()->json($formattedServices, 200);[m
+[32m+[m[32m                // Default case, no filtering if problem_type is neither "Internet" nor "Line"[m
+[32m+[m[32m                return false;[m
+[32m+[m[32m            });[m
+[32m+[m
+[32m+[m[32m            // Initialize a counter for creating dynamic service names[m
+[32m+[m[32m            $serviceCounter = 1;[m
+[32m+[m[32m            $formattedServices = [];[m
+[32m+[m
+[32m+[m[32m            // Iterate through the filtered data and create a new structure[m
+[32m+[m[32m            foreach ($filteredData as $item) {[m
+[32m+[m[32m                $formattedServices['Service' . $serviceCounter] = [[m
+[32m+[m[32m                    'CustomerNo' => $item['CustomerNo'],[m
+[32m+[m[32m                    'Name' => $item['Name'],[m
+[32m+[m[32m                    'ServiceType' => $item['ServiceType'],[m
+[32m+[m[32m                    'ServiceInfo' => $item['ServiceInfo'],[m
+[32m+[m[32m                    'CustomerSite' => $item['CustomerSite'],[m
+[32m+[m[32m                    'Status' => $item['Status'],[m
+[32m+[m[32m                ];[m
+[32m+[m[32m                $serviceCounter++; // Increment the counter for the next service[m
+             }[m
+[31m-    [m
+[31m-            return response()->json(['error' => 'Failed to fetch references from API', 'response' => $response->body()], 500);[m
+[31m-        } catch (\Illuminate\Validation\ValidationException $e) {[m
+[31m-            // Handle validation errors[m
+[31m-            return response()->json(['error' => 'Validation Error', 'details' => $e->errors()], 422);[m
+[31m-        } catch (\Illuminate\Http\Client\ConnectionException $e) {[m
+[31m-            return response()->json(['error' => 'API request timed out or connection failed', 'details' => $e->getMessage()], 504);[m
+[31m-        } catch (\Exception $e) {[m
+[31m-            return response()->json(['error' => 'An unexpected error occurred', 'details' => $e->getMessage()], 500);[m
+[32m+[m
+[32m+[m[32m            // Log the final enabled items[m
+[32m+[m[32m            \Log::info('Formatted Enabled Services:', $formattedServices);[m
+[32m+[m
+[32m+[m[32m            // Return the formatted services as individual objects[m
+[32m+[m[32m            return response()->json($formattedServices, 200);[m
+         }[m
+[32m+[m
+[32m+[m[32m        return response()->json(['error' => 'Failed to fetch references from API', 'response' => $response->body()], 500);[m
+[32m+[m[32m    } catch (\Illuminate\Http\Client\ConnectionException $e) {[m
+[32m+[m[32m        return response()->json(['error' => 'API request timed out or connection failed', 'details' => $e->getMessage()], 504);[m
+[32m+[m[32m    } catch (\Exception $e) {[m
+[32m+[m[32m        return response()->json(['error' => 'An unexpected error occurred', 'details' => $e->getMessage()], 500);[m
+     }[m
+[31m-    [m
+[32m+[m[32m}[m
+ [m
+     [m
+     [m
+[1mdiff --git a/app/Http/Controllers/ExchangeRateController.php b/app/Http/Controllers/ExchangeRateController.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Http/Controllers/OtpController.php b/app/Http/Controllers/OtpController.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Http/Controllers/RoamingController.php b/app/Http/Controllers/RoamingController.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Http/Controllers/SimDetailsController.php b/app/Http/Controllers/SimDetailsController.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Http/Controllers/SmsController.php b/app/Http/Controllers/SmsController.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Http/Controllers/SshController.php b/app/Http/Controllers/SshController.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Http/Controllers/SubscriptionController.php b/app/Http/Controllers/SubscriptionController.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Http/Controllers/TransactionController.php b/app/Http/Controllers/TransactionController.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Http/Controllers/TroubleshootingController.php b/app/Http/Controllers/TroubleshootingController.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Http/Controllers/USSDController.php b/app/Http/Controllers/USSDController.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Http/Controllers/WhatsAppBotController.php b/app/Http/Controllers/WhatsAppBotController.php[m
+[1mnew file mode 100755[m
+[1mindex 0000000..f9d0447[m
+[1m--- /dev/null[m
+[1m+++ b/app/Http/Controllers/WhatsAppBotController.php[m
+[36m@@ -0,0 +1,926 @@[m
+[32m+[m[32m<?php[m
+[32m+[m[32mnamespace App\Http\Controllers;[m
+[32m+[m
+[32m+[m[32muse Illuminate\Http\Request;[m
+[32m+[m[32muse Twilio\Rest\Client;[m
+[32m+[m
+[32m+[m[32mclass WhatsAppBotController extends Controller[m
+[32m+[m[32m{[m
+[32m+[m[32m    protected $sessionData = [];[m
+[32m+[m[32m    // for the test web[m[41m [m
+[32m+[m[41m    [m
+[32m+[m[32m    public function testMessage(Request $request)[m
+[32m+[m[32m    {[m
+[32m+[m[32m        // Get the message sent by the user[m
+[32m+[m[32m        $userMessage = strtolower(trim($request->input('message')));[m
+[32m+[m[32m        $responseMessage = '';[m
+[32m+[m[41m    [m
+[32m+[m[32m        // Start the session if not already started[m
+[32m+[m[32m        if (!session_id()) {[m
+[32m+[m[32m            session_start();[m
+[32m+[m[32m        }[m
+[32m+[m[41m    [m
+[32m+[m[32m        // Define main menu and sub-menus[m
+[32m+[m[41m        [m
+[32m+[m[32m        $mainMenu = [[m
+[32m+[m[32m            '1. ZAAD',[m
+[32m+[m[32m            '2. Internet',[m
+[32m+[m[32m            '3. Sim-card',[m
+[32m+[m[32m            '4. Value Added Services',[m
+[32m+[m[32m            '5. Self Support',[m
+[32m+[m[32m            '6. Additional Services',[m
+[32m+[m[32m            '7. Customer Satisfaction',[m
+[32m+[m[32m            '8. Connect with agent',[m
+[32m+[m[32m        ];[m
+[32m+[m[41m        [m
+[32m+[m[32m        $zaadSubMenu = [[m
+[32m+[m[32m            "1. New ZAAD Account (Information)",[m
+[32m+[m[32m            "2. Merchant (Information)",[m
+[32m+[m[32m            "3. Wrong ZAAD Transfer Support",[m
+[32m+[m[32m            "4. Last ZAAD Transactions",[m
+[32m+[m[32m            "5. Waafi",[m
+[32m+[m[32m            "6. Connect With Agent",[m
+[32m+[m[32m            "0. Go back"[m
+[32m+[m[32m        ];[m
+[32m+[m[41m        [m
+[32m+[m[32m        $internetSubMenu = [[m
+[32m+[m[32m            "1. Fiber",[m
+[32m+[m[32m            "2. Mobile broadband",[m
+[32m+[m[32m            "0. Go Back",[m
+[32m+[m[32m        ];[m
+[32m+[m[32m        $newFiber= [[m
+[32m+[m[32m            '1. New Internet ',[m
+[32m+[m[32m            '2. Internet Billing',[m
+[32m+[m[32m            '3. Troubleshooting'[m
+[32m+[m[32m        ];[m
+[32m+[m[41m        [m
+[32m+[m[32m        $fiberSubMenu = [[m
+[32m+[m[32m            "1. New Internet",[m
+[32m+[m[32m            "2. Internet Billing",[m
+[32m+[m[32m            "3. Troubleshooting",[m
+[32m+[m[32m            "0. Go Back",[m
+[32m+[m[32m        ];[m
+[32m+[m[41m        [m
+[32m+[m[32m        $city = [[m
+[32m+[m[32m            "1. Hargeisa = HRG",[m
+[32m+[m[32m            "2. Burco = BRO",[m
+[32m+[m[32m            "3. Berbera = BER",[m
+[32m+[m[32m            "4. Boorama = BRM",[m
+[32m+[m[32m            "5. Wajaale = WAJ",[m
+[32m+[m[32m            "6. Buuhoodle = BUH",[m
+[32m+[m[32m            "7. Gabiley = GAB",[m
+[32m+[m[32m            "8. Laascaanood = LAS",[m
+[32m+[m[32m            "0. Go Back",[m
+[32m+[m[32m        ];[m
+[32m+[m[41m        [m
+[32m+[m[32m        $internetSpeed = [[m
+[32m+[m[32m            "1. 5MB  $20 Monthly",[m
+[32m+[m[32m            "2. 7MB  $30 Monthly",[m
+[32m+[m[32m            "3. 15MB $50 Monthly",[m
+[32m+[m[32m            "4. 20MB $80 Monthly",[m
+[32m+[m[32m            "5. 35MB $150 Monthly",[m
+[32m+[m[32m            "6. More than the above speed",[m
+[32m+[m[32m            "0. Go Back",[m
+[32m+[m[32m        ];[m
+[32m+[m[41m        [m
+[32m+[m[32m        $simCardSubMenu = [[m
+[32m+[m[32m            "1. Mushaax",[m
+[32m+[m[32m            "2. Pin/Puk",[m
+[32m+[m[32m            "3. Telesom Services",[m
+[32m+[m[32m            "0. Go Back",[m
+[32m+[m[32m        ];[m
+[32m+[m[41m        [m
+[32m+[m[32m        $valueAddedServicesSubMenu = [[m
+[32m+[m[32m            "1. My Status",[m
+[32m+[m[32m            "2. Mobile Education",[m
+[32m+[m[32m            "3. Mobile Market",[m
+[32m+[m[32m            "4. Who is calling me",[m
+[32m+[m[32m            "5. SMS Groupy",[m
+[32m+[m[32m            "6. MWoman",[m
+[32m+[m[32m            "7. Antitheft",[m
+[32m+[m[32m            "0. Go Back",[m
+[32m+[m[32m        ];[m
+[32m+[m[41m        [m
+[32m+[m[32m        $selfSupportSubMenu = [[m
+[32m+[m[32m            "1. Activate/Deactivate Roaming Services",[m
+[32m+[m[32m            "2. Pin/Puk",[m
+[32m+[m[32m            "3. Data Mifi/Super Mifi Balance",[m
+[32m+[m[32m            "4. Prepaid Balance",[m
+[32m+[m[32m            "5. Internet Balance",[m
+[32m+[m[32m            "6. Kaafiye Balance",[m
+[32m+[m[32m            "7. Bonus Balance",[m
+[32m+[m[32m            "8. Wrong ZAAD, EVC, and Data Transfer",[m
+[32m+[m[32m            "9. Unblock Yourself",[m
+[32m+[m[32m            "0. Go Back",[m
+[32m+[m[32m        ];[m
+[32m+[m[41m        [m
+[32m+[m[32m        $additionalServicesSubMenu = [[m
+[32m+[m[32m            "1. Connect with Agent Live",[m
+[32m+[m[32m            "2. Recommended Offers",[m
+[32m+[m[32m            "0. Go Back",[m
+[32m+[m[32m        ];[m
+[32m+[m[41m        [m
+[32m+[m[32m        $customerSatisfactionSubMenu = [[m
+[32m+[m[32m            "1. Very Good",[m
+[32m+[m[32m            "2. Good",[m
+[32m+[m[32m            "3. Okay",[m
+[32m+[m[32m            "4. Bad",[m
+[32m+[m[32m            "5. Very Bad",[m
+[32m+[m[32m            "0. Go Back",[m
+[32m+[m[32m        ];[m
+[32m+[m[41m    [m
+[32m+[m[32m        // Default greeting and main menu[m
+[32m+[m[32mif (in_array(strtolower($userMessage), ['hi', 'hello', 'morning', 'good morning', 'asc'])) {[m
+[32m+[m[32m    $responseMessage = "Good MORNING, Khalid! Please choose what we can help with today:<br>";[m
+[32m+[m[32m    $responseMessage .= implode("<br>", $mainMenu);[m
+[32m+[m[32m    $_SESSION['menu_state'] = 'main'; // Initialize state to main[m
+[32m+[m
+[32m+[m[32m} elseif ($_SESSION['menu_state'] === 'main') {[m
+[32m+[m[32m    // Handle main menu selections[m
+[32m+[m[32m    switch ($userMessage) {[m
+[32m+[m[32m        case '1':[m
+[32m+[m[32m            $responseMessage = "You have chosen ZAAD services. Please select an option:<br>" . implode("<br>", $zaadSubMenu);[m
+[32m+[m[32m            $_SESSION['menu_state'] = 'zaad'; // Set state to zaad[m
+[32m+[m[32m            break;[m
+[32m+[m[32m        case '2':[m
+[32m+[m[32m            $responseMessage = "You have chosen Internet services. Please select an option:<br>" . implode("<br>", $internetSubMenu);[m
+[32m+[m[32m            $_SESSION['menu_state'] = 'internet'; // Set state to internet[m
+[32m+[m[32m            break;[m
+[32m+[m[32m        case '3':[m
+[32m+[m[32m            $responseMessage = "You have chosen Sim Card services. Please select an option:<br>" . implode("<br>", $simCardSubMenu);[m
+[32m+[m[32m            $_SESSION['menu_state'] = 'sim_card'; // Set state to sim card[m
+[32m+[m[32m            break;[m
+[32m+[m[32m        case '4':[m
+[32m+[m[32m            $responseMessage = "Value Added Services. Please select an option:<br>" . implode("<br>", $valueAddedServicesSubMenu);[m
+[32m+[m[32m            $_SESSION['menu_state'] = 'VAS'; // Set state to VAS[m
+[32m+[m[32m            break;[m
+[32m+[m[32m        case '5':[m
+[32m+[m[32m            $responseMessage = "Self Support. Please select an option:<br>" . implode("<br>", $selfSupportSubMenu);[m
+[32m+[m[32m            $_SESSION['menu_state'] = 'selfsupport'; // Set state to self support[m
+[32m+[m[32m            break;[m
+[32m+[m[32m        case '6':[m
+[32m+[m[32m            $responseMessage = "Additional Services. Please select an option:<br>" . implode("<br>", $additionalServicesSubMenu);[m
+[32m+[m[32m            $_SESSION['menu_state'] = 'additional_service'; // Set state to additional service[m
+[32m+[m[32m            break;[m
+[32m+[m[32m        case '7':[m
+[32m+[m[32m            $responseMessage = "Customer Satisfaction. Please select an option:<br>" . implode("<br>", $customerSatisfactionSubMenu);[m
+[32m+[m[32m            $_SESSION['menu_state'] = 'customer_satisfaction'; // Set state to customer satisfaction[m
+[32m+[m[32m            break;[m
+[32m+[m[32m        case '8':[m
+[32m+[m[32m            $responseMessage = "Connecting to Live Agent...";[m
+[32m+[m[32m            // Add live agent state if needed.[m
+[32m+[m[32m            break;[m
+[32m+[m[32m        default:[m
+[32m+[m[32m            $responseMessage = "Sorry, I didn’t understand that. Please choose an option from the menu.";[m
+[32m+[m[32m            break;[m
+[32m+[m[32m    }[m
+[32m+[m[32m} elseif($_SESSION['menu_state'] === 'internet') {[m
+[32m+[m[32m    // Handle internet services selections[m
+[32m+[m[32m    switch ($userMessage) {[m
+[32m+[m[32m        case '1':[m
+[32m+[m[32m            $responseMessage = "You have chosen New Fiber services. Please select a location:<br>  " . implode("<br>", $fiberSubMenu);[m
+[32m+[m[32m            $_SESSION['menu_state'] = 'new_fiber'; // Update to 'new_fiber_location' state[m
+[32m+[m[32m            break;[m
+[32m+[m[32m        case '2':[m
+[32m+[m[32m            $responseMessage = 'You have in  Internet Billing';[m
+[32m+[m[32m            $_SESSION['menu_state'] = 'Internet_Billing';[m
+[32m+[m[32m            break;[m
+[32m+[m[32m        case '3':[m
+[32m+[m[32m            $responseMessage= 'In TroubleShooting';[m
+[32m+[m[32m            $_SESSION['menu_state'] = 'Troubleshooting';[m
+[32m+[m[32m            break;[m
+[32m+[m[32m        case '0': // Go back to main menu[m
+[32m+[m[32m            $responseMessage = "Going back to the main menu...";[m
+[32m+[m[32m            $_SESSION['menu_state'] = 'main'; // Reset to main menu[m
+[32m+[m[32m            $responseMessage .= "<br>" . implode("<br>", $mainMenu);[m
+[32m+[m[32m            break;[m
+[32m+[m
+[32m+[m[32m        default:[m
+[32m+[m[32m            $responseMessage = "Invalid option. Please choose from the Internet menu.";[m
+[32m+[m[32m            break;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[41m   [m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m[32melseif ($_SESSION['menu_state']=== 'new_fiber') {[m
+[32m+[m[32m    if($userMessage === '1'){[m
+[32m+[m[32m        $responseMessage = "You have chosen New Fiber services. Please select a location:<br>  " . implode("<br>", $city);[m
+[32m+[m[32m        $_SESSION['menu_state'] = 'new_fiber_location';[m
+[32m+[m[32m    }elseif($userMessage === '2'){[m
+[32m+[m[41m        [m
+[32m+[m[32m        $_SESSION['menu_state'] = 'internet_billing'; // Set menu state to internet_billing[m
+[32m+[m
+[32m+[m[32m        $responseMessage = "Please enter the line you have registered for your internet (e.g., 522297):";[m
+[32m+[m
+[32m+[m[32m    }elseif($userMessage === '3') {[m
+[32m+[m[32m        $responseMessage = "Please select the type of troubleshooting you need:<br>1. Internet Services<br>2. Landline (Fixed Line)<br>0. Go Back";[m
+[32m+[m[32m        $_SESSION['menu_state'] = 'troubleshooting'; // Set menu state to troubleshooting[m
+[32m+[m[41m        [m
+[32m+[m[32m    }[m
+[32m+[m[41m   [m
+[32m+[m[32m    # code...[m
+[32m+[m[32m}elseif ($_SESSION['menu_state'] === 'internet_billing') {[m
+[32m+[m[32m    // Check if the user has entered a valid line number (e.g., it should be numeric)[m
+[32m+[m[32m    if (preg_match('/^\d{6}$/', $userMessage)) { // Assuming the line number is 6 digits[m
+[32m+[m[32m        // Here, we can retrieve the due balance based on the line number[m
+[32m+[m[32m        // For now, we will assume a static balance for demonstration[m
+[32m+[m[32m        // In a real application, you might query a database for the actual balance[m
+[32m+[m[32m        $dueBalance = 100; // Example static value[m
+[32m+[m[41m        [m
+[32m+[m[32m        $responseMessage = "Your due balance is $$dueBalance.";[m
+[32m+[m[41m        [m
+[32m+[m[32m        // Optionally, return to main menu or prompt further action[m
+[32m+[m[32m         // Reset to main menu[m
+[32m+[m[32m        $responseMessage .= "<br>Thank you! You can select another service:<br>";[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m        $responseMessage = "Invalid line number. Please enter a valid 6-digit line number (e.g., 522297):";[m
+[32m+[m[32m    }[m
+[32m+[m[32m}// Handle internet services and landline troubleshooting[m
+[32m+[m
+[32m+[m[32m// Handle troubleshooting menu state[m
+[32m+[m[32melseif ($_SESSION['menu_state'] === 'troubleshooting') {[m
+[32m+[m[32m    // Ask the user to select which type of troubleshooting (Internet or Landline)[m
+[32m+[m[32m    $responseMessage = "Please select the type of troubleshooting you need:<br>1. Internet Services<br>2. Landline (Fixed Line)<br>0. Go Back";[m
+[32m+[m[32m    $_SESSION['menu_state'] = 'troubleshooting_type';[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m// Handle type selection for troubleshooting[m
+[32m+[m[32melseif ($_SESSION['menu_state'] === 'troubleshooting_type') {[m
+[32m+[m[32m    switch ($userMessage) {[m
+[32m+[m[32m        case '1': // Internet Services[m
+[32m+[m[32m            $responseMessage = "Please enter your Reference Number for Internet Services (e.g., 634220460):";[m
+[32m+[m[32m            $_SESSION['menu_state'] = 'internet_troubleshooting_reference'; // Update session state[m
+[32m+[m[32m            break;[m
+[32m+[m[32m        case '2': // Landline Services[m
+[32m+[m[32m            $responseMessage = "Please enter your Reference Number for Landline Services (e.g., 634220460):";[m
+[32m+[m[32m            $_SESSION['menu_state'] = 'landline_troubleshooting_reference'; // Update session state[m
+[32m+[m[32m            break;[m
+[32m+[m[32m        case '0': // Go Back[m
+[32m+[m[32m            $responseMessage = "Going back to the main menu...";[m
+[32m+[m[32m            $_SESSION['menu_state'] = 'main'; // Reset to main menu[m
+[32m+[m[32m            $responseMessage .= "<br>" . implode("<br>", $mainMenu);[m
+[32m+[m[32m            break;[m
+[32m+[m[32m        default:[m
+[32m+[m[32m            $responseMessage = "Invalid option. Please select from the troubleshooting menu.";[m
+[32m+[m[32m            break;[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m// Handle reference number input for Internet Services troubleshooting[m
+[32m+[m[32melseif ($_SESSION['menu_state'] === 'internet_troubleshooting_reference') {[m
+[32m+[m[32m    if (preg_match('/^\d{9}$/', $userMessage)) { // Assuming the reference number is 9 digits[m
+[32m+[m[32m        $_SESSION['internet_troubleshooting_reference'] = $userMessage; // Store the reference number[m
+[32m+[m
+[32m+[m[32m        // Display the list of available internet services based on the reference[m
+[32m+[m[32m        // Here you could dynamically retrieve the services, but for demonstration, we use static options[m
+[32m+[m[32m        $internetServices = [[m
+[32m+[m[32m            '1' => '510093 - DHOOL DIGITAL AGENCY FIBER - DSL',[m
+[32m+[m[32m            '2' => '518884 - LAVISH MEDSPA LOOKHEALTH DEDICATED'[m
+[32m+[m[32m        ];[m
+[32m+[m
+[32m+[m[32m        $responseMessage = "Please choose below your internet service:<br>" . implode("<br>", $internetServices);[m
+[32m+[m[32m        $_SESSION['menu_state'] = 'internet_troubleshooting_service'; // Move to service selection state[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m        $responseMessage = "Invalid reference number. Please enter a valid 9-digit reference number (e.g., 634220460):";[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m// Handle internet service selection for troubleshooting[m
+[32m+[m[32melseif ($_SESSION['menu_state'] === 'internet_troubleshooting_service') {[m
+[32m+[m[32m    $internetServices = [[m
+[32m+[m[32m        '1' => '510093 - DHOOL DIGITAL AGENCY FIBER - DSL',[m
+[32m+[m[32m        '2' => '518884 - LAVISH MEDSPA LOOKHEALTH DEDICATED'[m
+[32m+[m[32m    ];[m
+[32m+[m
+[32m+[m[32m    if (array_key_exists($userMessage, $internetServices)) {[m
+[32m+[m[32m        $_SESSION['internet_troubleshooting_service'] = $internetServices[$userMessage]; // Store the selected service[m
+[32m+[m
+[32m+[m[32m        $responseMessage = "Troubleshooting request for Internet Service " . $_SESSION['internet_troubleshooting_service'] . " submitted successfully!";[m
+[32m+[m[32m        $_SESSION['menu_state'] = 'main'; // Reset to main menu[m
+[32m+[m[32m        $responseMessage .= "<br>Thank you! You can select another service:<br>" . implode("<br>", $mainMenu);[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m        $responseMessage = "Invalid option. Please choose a valid internet service:<br>" . implode("<br>", $internetServices);[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m// Handle reference number input for Landline Services troubleshooting[m
+[32m+[m[32melseif ($_SESSION['menu_state'] === 'landline_troubleshooting_reference') {[m
+[32m+[m[32m    if (preg_match('/^\d{9}$/', $userMessage)) { // Assuming the reference number is 9 digits[m
+[32m+[m[32m        $_SESSION['landline_troubleshooting_reference'] = $userMessage; // Store the reference number[m
+[32m+[m
+[32m+[m[32m        // Display the list of available landline services based on the reference[m
+[32m+[m[32m        $landlineServices = [[m
+[32m+[m[32m            '1' => '510093 - DHOOL DIGITAL AGENCY FIBER',[m
+[32m+[m[32m            '2' => '518884 - LAVISH MEDSPA LOOKHEALTH DEDICATED'[m
+[32m+[m[32m        ];[m
+[32m+[m
+[32m+[m[32m        $responseMessage = "Please choose below your landline service:<br>" . implode("<br>", $landlineServices);[m
+[32m+[m[32m        $_SESSION['menu_state'] = 'landline_troubleshooting_service'; // Move to service selection state[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m        $responseMessage = "Invalid reference number. Please enter a valid 9-digit reference number (e.g., 634220460):";[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m// Handle landline service selection for troubleshooting[m
+[32m+[m[32melseif ($_SESSION['menu_state'] === 'landline_troubleshooting_service') {[m
+[32m+[m[32m    $landlineServices = [[m
+[32m+[m[32m        '1' => '510093 - DHOOL DIGITAL AGENCY FIBER',[m
+[32m+[m[32m        '2' => '518884 - LAVISH MEDSPA LOOKHEALTH DEDICATED'[m
+[32m+[m[32m    ];[m
+[32m+[m
+[32m+[m[32m    if (array_key_exists($userMessage, $landlineServices)) {[m
+[32m+[m[32m        $_SESSION['landline_troubleshooting_service'] = $landlineServices[$userMessage]; // Store the selected service[m
+[32m+[m
+[32m+[m[32m        $responseMessage = "Troubleshooting request for Landline Service " . $_SESSION['landline_troubleshooting_service'] . " submitted successfully!";[m
+[32m+[m[32m        $_SESSION['menu_state'] = 'main'; // Reset to main menu[m
+[32m+[m[32m        $responseMessage .= "<br>Thank you! You can select another service:<br>" . implode("<br>", $mainMenu);[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m        $responseMessage = "Invalid option. Please choose a valid landline service:<br>" . implode("<br>", $landlineServices);[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m[32m// Handle location selection[m
+[32m+[m[32melseif ($_SESSION['menu_state'] === 'new_fiber_location') {[m
+[32m+[m[32m    $validLocations = [[m
+[32m+[m[32m        '1' => 'Hargeisa (HRG)',[m
+[32m+[m[32m        '2' => 'Burco (BRO)',[m
+[32m+[m[32m        '3' => 'Berbera (BER)',[m
+[32m+[m[32m        '4' => 'Boorama (BRM)',[m
+[32m+[m[32m        '5' => 'Wajaale (WAJ)',[m
+[32m+[m[32m        '6' => 'Buuhoodle (BUH)',[m
+[32m+[m[32m        '7' => 'Gabiley (GAB)',[m
+[32m+[m[32m        '8' => 'Laascaanood (LAS)'[m
+[32m+[m[32m    ];[m
+[32m+[m
+[32m+[m[32m    if (array_key_exists($userMessage, $validLocations)) {[m
+[32m+[m[32m        $_SESSION['new_fiber_location'] = $validLocations[$userMessage]; // Store selected location[m
+[32m+[m[32m        $responseMessage = "You have selected " . $_SESSION['new_fiber_location'] . ". Please enter your address (Max: 20 characters):";[m
+[32m+[m[32m        $_SESSION['menu_state'] = 'new_fiber_address'; // Move to address entry state[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m        $responseMessage = "Invalid location. Please select a valid option:<br>" . implode("<br>", $validLocations);[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m// Handle address input[m
+[32m+[m[32melseif ($_SESSION['menu_state'] === 'new_fiber_address') {[m
+[32m+[m[32m    if (strlen($userMessage) <= 20) {[m
+[32m+[m[32m        $_SESSION['new_fiber_address'] = $userMessage; // Store entered address[m
+[32m+[m[32m        $responseMessage = "Please choose the speed of the Internet:<br>1. 5MB - $20 Monthly<br>2. 7MB - $30 Monthly<br>3. 15MB - $50 Monthly<br>4. 20MB - $80 Monthly<br>5. 35MB - $150 Monthly<br>6. More than the above speed";[m
+[32m+[m[32m        $_SESSION['menu_state'] = 'new_fiber_speed'; // Move to speed selection state[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m        $responseMessage = "Address too long. Please enter an address with a maximum of 20 characters:";[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m// Handle speed selection[m
+[32m+[m[32melseif ($_SESSION['menu_state'] === 'new_fiber_speed') {[m
+[32m+[m[32m    $speedOptions = [[m
+[32m+[m[32m        '1' => '5MB - $20 Monthly',[m
+[32m+[m[32m        '2' => '7MB - $30 Monthly',[m
+[32m+[m[32m        '3' => '15MB - $50 Monthly',[m
+[32m+[m[32m        '4' => '20MB - $80 Monthly',[m
+[32m+[m[32m        '5' => '35MB - $150 Monthly',[m
+[32m+[m[32m        '6' => 'More than the above speed'[m
+[32m+[m[32m    ];[m
+[32m+[m
+[32m+[m[32m    if (array_key_exists($userMessage, $speedOptions)) {[m
+[32m+[m[32m        $_SESSION['new_fiber_speed'] = $speedOptions[$userMessage]; // Store selected speed[m
+[32m+[m[32m        $responseMessage = "You have selected " . $_SESSION['new_fiber_speed'] . ". Please enter your payment phone number (9 digits):";[m
+[32m+[m[32m        $_SESSION['menu_state'] = 'new_fiber_phone_number'; // Move to phone number state[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m        $responseMessage = "Invalid speed selection. Please choose a valid speed option:<br>" . implode("<br>", $speedOptions);[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m// Handle phone number entry[m
+[32m+[m[32melseif ($_SESSION['menu_state'] === 'new_fiber_phone_number') {[m
+[32m+[m[32m    if (preg_match('/^\d{9}$/', $userMessage)) {[m
+[32m+[m[32m        $_SESSION['new_fiber_phone_number'] = $userMessage; // Store valid phone number[m
+[32m+[m[32m        $responseMessage = "The installation cost is $20. Please select your payment option:<br>1. Zaad Dollar<br>2. Zaad Shilling";[m
+[32m+[m[32m        $_SESSION['menu_state'] = 'new_fiber_payment'; // Move to payment selection state[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m        $responseMessage = "Invalid phone number. Please enter a valid 9-digit phone number:";[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m// Handle payment option selection[m
+[32m+[m[32melseif ($_SESSION['menu_state'] === 'new_fiber_payment') {[m
+[32m+[m[32m    $paymentOptions = [[m
+[32m+[m[32m        '1' => 'Zaad Dollar',[m
+[32m+[m[32m        '2' => 'Zaad Shilling'[m
+[32m+[m[32m    ];[m
+[32m+[m
+[32m+[m[32m    if (array_key_exists($userMessage, $paymentOptions)) {[m
+[32m+[m[32m        $_SESSION['new_fiber_payment'] = $paymentOptions[$userMessage]; // Store selected payment option[m
+[32m+[m[32m        $responseMessage = "Dear customer, to get this service quickly, the Internet & Landline department will contact you. Thank you!";[m
+[32m+[m[32m        $_SESSION['menu_state'] = 'main'; // Reset to main menu after completion[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m        $responseMessage = "Invalid payment option. Please choose a valid option:<br>1. Zaad Dollar<br>2. Zaad Shilling";[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m[32melseif ($_SESSION['menu_state'] === 'zaad') {[m
+[32m+[m[32m    // Handle ZAAD submenu selections[m
+[32m+[m[32m    switch ($userMessage) {[m
+[32m+[m[32m        case '1': // New ZAAD Account[m
+[32m+[m[32m            $responseMessage = "To open a new ZAAD account, one of the following documents is needed:<br>National ID<br>Driver's License<br>Passport.<br>Visit the nearest Telesom branch or call 151.";[m
+[32m+[m[32m            break;[m
+[32m+[m[32m        case '2': // New Merchant Account[m
+[32m+[m[32m            $responseMessage = "To open a new ZAAD Merchant account, bring a Business License, another Merchant, or Telesom staff.<br>Visit the nearest Telesom branch or call 522387.";[m
+[32m+[m[32m            break;[m
+[32m+[m[32m        case '3': // Wrong ZAAD Transfer Support[m
+[32m+[m[32m            $responseMessage = "Did you send the money from your WhatsApp number?<br>1. Yes<br>2. No";[m
+[32m+[m[32m            $_SESSION['menu_state'] = 'zaad_wrong_transfer'; // Set state for wrong transfer[m
+[32m+[m[32m            break;[m
+[32m+[m[32m        case '4': // Last ZAAD Transactions[m
+[32m+[m[32m            $responseMessage = "To view your last ZAAD transactions, dial *222# or *888# and choose option 5 (Show Last Transaction).";[m
+[32m+[m[32m            break;[m
+[32m+[m[32m        case '0': // Go back to main menu[m
+[32m+[m[32m            $responseMessage = "Going back to the main menu...";[m
+[32m+[m[32m            $_SESSION['menu_state'] = 'main'; // Reset to main menu[m
+[32m+[m[32m            $responseMessage .= "<br>" . implode("<br>", $mainMenu);[m
+[32m+[m[32m            break;[m
+[32m+[m[32m        default:[m
+[32m+[m[32m            $responseMessage = "Invalid option. Please choose from the ZAAD menu.";[m
+[32m+[m[32m            break;[m
+[32m+[m[32m    }[m
+[32m+[m[32m} elseif ($_SESSION['menu_state'] === 'zaad_wrong_transfer') {[m
+[32m+[m[32m    // Handle wrong transfer submenu[m
+[32m+[m[32m    if ($userMessage === '1') {[m
+[32m+[m[32m        $responseMessage = "Please select the type of Money:<br>1. ZAAD Shilling<br>2. ZAAD Dollar<br>3. Airtime<br>4. Data Recharge";[m
+[32m+[m[32m        $_SESSION['menu_state'] = 'zaad_wrong_transfer_type'; // Set state for money type selection[m
+[32m+[m[32m    } elseif ($userMessage === '2') {[m
+[32m+[m[32m        $responseMessage = "Please enter the number you sent the money from:";[m
+[32m+[m[32m        $_SESSION['menu_state'] = 'zaad_wrong_transfer_sender_number'; // Set state for sender number entry[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m        $responseMessage = "Invalid option. Please respond with '1' for Yes or '2' for No.";[m
+[32m+[m[32m    }[m
+[32m+[m[32m} elseif ($_SESSION['menu_state'] === 'zaad_wrong_transfer_type') {[m
+[32m+[m[32m    // Handle type of money selection[m
+[32m+[m[32m    if ($userMessage === '1' || $userMessage === '2') {[m
+[32m+[m[32m        $responseMessage = "Please enter the receiver's number:";[m
+[32m+[m[32m        $_SESSION['menu_state'] = 'zaad_wrong_transfer_receiver_number';[m
+[32m+[m[32m        $_SESSION['money_type'] = ($userMessage === '1') ? 'ZAAD Shilling' : 'ZAAD Dollar';[m
+[32m+[m[32m    } elseif ($userMessage === '3' || $userMessage === '4') {[m
+[32m+[m[32m        $responseMessage = "Please enter the transaction number:";[m
+[32m+[m[32m        $_SESSION['menu_state'] = 'zaad_wrong_transfer_transaction_number';[m
+[32m+[m[32m        $_SESSION['money_type'] = ($userMessage === '3') ? 'Airtime' : 'Data Recharge';[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m        $responseMessage = "Invalid option. Please select the correct money type.";[m
+[32m+[m[32m    }[m
+[32m+[m[32m} elseif ($_SESSION['menu_state'] === 'zaad_wrong_transfer_receiver_number') {[m
+[32m+[m[32m    $_SESSION['zaad_wrong_transfer_receiver_number'] = $userMessage; // Store receiver's number[m
+[32m+[m[32m    $responseMessage = "Please enter the transaction number:";[m
+[32m+[m[32m    $_SESSION['menu_state'] = 'zaad_wrong_transfer_transaction_number'; // Set state for transaction number[m
+[32m+[m[32m} elseif ($_SESSION['menu_state'] === 'zaad_wrong_transfer_transaction_number') {[m
+[32m+[m[32m    // Finalize wrong transfer[m
+[32m+[m
+[32m+[m[32m    $apiRequestBody = [[m
+[32m+[m[32m        "msisdn" => '634097961',[m
+[32m+[m[32m        "transactionnumber" => $transactionNumber,[m
+[32m+[m[32m        "wrongnumber" => $wrongNumber,[m
+[32m+[m[32m        "currency_code" => $currencyCode[m
+[32m+[m[32m    ];[m
+[32m+[m[32m        // Convert the request body to JSON format[m
+[32m+[m[32m        $jsonRequestBody = json_encode($apiRequestBody);[m
+[32m+[m
+[32m+[m[32m        // Set up the API request headers[m
+[32m+[m[32m        $apiHeaders = [[m
+[32m+[m[32m            'apiTokenUser: mob#!Billing!*',[m
+[32m+[m[32m            'apiTokenPwd: De6$A7#ES282S@m@l!n.2BIoz',[m
+[32m+[m[32m            'Content-Type: application/json',[m
+[32m+[m[32m        ];[m
+[32m+[m[41m    [m
+[32m+[m[32m        // Initialize cURL session for the API request[m
+[32m+[m[32m        $ch = curl_init('http://10.10.0.7:8077/api/KaaliyeApi/BlockWrongTransaction');[m
+[32m+[m[32m        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);[m
+[32m+[m[32m        curl_setopt($ch, CURLOPT_POST, true);[m
+[32m+[m[32m        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonRequestBody);[m
+[32m+[m[32m        curl_setopt($ch, CURLOPT_HTTPHEADER, $apiHeaders);[m
+[32m+[m[41m    [m
+[32m+[m[32m        // Execute the API request[m
+[32m+[m[32m        $apiResponse = curl_exec($ch);[m
+[32m+[m[41m    [m
+[32m+[m[32m        // Check for cURL errors[m
+[32m+[m[32m        if (curl_errno($ch)) {[m
+[32m+[m[32m            $responseMessage = "Error connecting to the API: " . curl_error($ch);[m
+[32m+[m[32m        } else {[m
+[32m+[m[32m            // Parse the API response[m
+[32m+[m[32m            $decodedResponse = json_decode($apiResponse, true);[m
+[32m+[m[41m    [m
+[32m+[m[32m            // Check for a successful response[m
+[32m+[m[32m            if ($decodedResponse['status'] == '1') {[m
+[32m+[m[32m                $responseMessage = $decodedResponse['Message']; // Display success message from the API[m
+[32m+[m[32m            } else {[m
+[32m+[m[32m                $responseMessage = "Failed to block the wrong transaction. Please try again.";[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m[41m    [m
+[32m+[m[32m        // Close the cURL session[m
+[32m+[m[32m        curl_close($ch);[m
+[32m+[m[41m    [m
+[32m+[m[32m        // Reset the menu state to the main ZAAD menu after completing the API request[m
+[32m+[m[32m        $_SESSION['menu_state'] = 'zaad';[m
+[32m+[m[41m    [m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32melseif($_SESSION['menu_state'] === 'sim_card') {[m
+[32m+[m[32m    if ($userMessage === '1') {[m
+[32m+[m[32m        $responseMessage = "mushaax";[m
+[32m+[m[32m        $_SESSION['menu_state'] = 'mushaax'; // Set state to handle Telesom services[m
+[32m+[m[32m    } elseif ($userMessage === '2') {[m
+[32m+[m[32m        $responseMessage = "Please enter your phone number for Ping/Buk:";[m
+[32m+[m[32m        $_SESSION['menu_state'] = 'ping_buk_number_entry'; // Set state for Ping/Buk number entry[m
+[32m+[m[32m    } elseif ($userMessage === '3') {[m
+[32m+[m[32m        $responseMessage = "You have selected Telesom Services. <br> Telesom Services- Below content will be send <br>[m
+[32m+[m[32m        “*444# Prepaid Internet u badalo <br>[m
+[32m+[m[32m        *400# Adeegyo casri ah <br>[m
+[32m+[m[32m        *141# Soo gudbinta Cabashooyinka <br>[m
+[32m+[m[32m        *151# Adeega Kaaliye <br>[m
+[32m+[m[32m        *122# Itus hadhaagayga <br>[m
+[32m+[m[32m        *662# Itus Hadhaaga Internetka <br>[m
+[32m+[m[32m        *133# Internet u dir Macmiil kale(Data Transfer) <br>[m
+[32m+[m[32m        *403# Adeega Xoogsade <br>[m
+[32m+[m[32m        *408# Adeega Ambassador service <br>[m
+[32m+[m[32m        *409# Iga jooji datada in aan ku isticmaalo Prepaidka iigu jira <br>[m
+[32m+[m[32m        151 Xafiiska daryeelka Macaamiisha Call center <br>[m
+[32m+[m[32m        150 Adeega Aqoonmaal <br>[m
+[32m+[m[32m        200 Adeega Aqoonmaal <br>[m
+[32m+[m[32m        212 Call me back service <br>[m
+[32m+[m[32m        Xafiiska daryeelka Macaamiisha Fadlan garaac 151 <br>[m
+[32m+[m[32m        Missed call Notification Fadlan garaac 126 <br>[m
+[32m+[m[32m        Adeeega Ilamaqal Fadlan garaac 118 <br>[m
+[32m+[m[32m        AdeegaVoice SMS Fadlan garaac 136  <br>[m
+[32m+[m[32m        Adeega Ila wadaag Fadlan garaac 115 <br>[m
+[32m+[m[32m        ";[m
+[32m+[m[32m        $_SESSION['menu_state'] = 'telesom_service_entry'; // Set state for Telesom service entry[m
+[32m+[m[32m    } elseif ($userMessage === '0') {[m
+[32m+[m[32m        $responseMessage = "Going back to the main menu...";[m
+[32m+[m[32m        $_SESSION['menu_state'] = 'main'; // Reset to main menu[m
+[32m+[m[32m        $responseMessage .= "<br>" . implode("<br>", $mainMenu); // Append main menu options[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m        $responseMessage = "Invalid option. Please choose a valid option.";[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m[41m [m
+[32m+[m
+[32m+[m
+[32m+[m[32m        // Handle Pin/Puk number entry[m
+[32m+[m[32m       if ($_SESSION['menu_state'] === 'pin_puk_number_entry') {[m
+[32m+[m[32m    if (is_numeric($userMessage) && strlen($userMessage) === 9) {[m
+[32m+[m[32m        // Store the entered number[m
+[32m+[m[32m        $this->sessionData[$from]['pin_puk_number'] = $userMessage;[m
+[32m+[m[41m        [m
+[32m+[m[32m        // Call the Ping/Puk API function with the entered phone number[m
+[32m+[m[32m        $apiResponse = $this->callPingBukAPI($this->sessionData[$from]['pin_puk_number']);[m
+[32m+[m[41m        [m
+[32m+[m[32m        // Handle the API response[m
+[32m+[m[32m        if ($apiResponse['status'] === 'success') {[m
+[32m+[m[32m            $responseMessage = "Pin/Puk details for number: " . $this->sessionData[$from]['pin_puk_number'] . "\nResponse: " . $apiResponse['message'];[m
+[32m+[m[32m        } else {[m
+[32m+[m[32m            $responseMessage = "Error: " . $apiResponse['message'];[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        // Reset session state to 'sim_card' and clean up stored phone number[m
+[32m+[m[32m        $this->sessionData[$from]['menu_state'] = 'sim_card';[m
+[32m+[m[32m        unset($this->sessionData[$from]['pin_puk_number']); // Clear the stored number[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m        // Validation for invalid input[m
+[32m+[m[32m        $responseMessage = "Please enter a valid 9-digit number:";[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m[32m        // Output the response message (for testing)[m
+[32m+[m[32m        echo $responseMessage;[m
+[32m+[m[41m    [m
+[32m+[m[32m        // Output response[m
+[32m+[m[32m        return back()->with('response', $responseMessage);[m
+[32m+[m[32m    }[m
+[32m+[m[41m    [m
+[32m+[m[41m    [m
+[32m+[m
+[32m+[m[32mprivate function callPingBukAPI($phoneNumber)[m
+[32m+[m[32m{[m
+[32m+[m[32m    // Initialize the cURL session[m
+[32m+[m[32m    $curl = curl_init();[m
+[32m+[m
+[32m+[m[32m    // Prepare the data to be sent via POST[m
+[32m+[m[32m    $postData = json_encode([[m
+[32m+[m[32m        "Callsub" => $phoneNumber,[m
+[32m+[m[32m        "UserId" => "imll",[m
+[32m+[m[32m    ]);[m
+[32m+[m
+[32m+[m[32m    // Set cURL options[m
+[32m+[m[32m    curl_setopt_array($curl, [[m
+[32m+[m[32m        CURLOPT_URL => "http://10.55.1.143:8983/api/CRMApi/GetSimDetails",[m
+[32m+[m[32m        CURLOPT_RETURNTRANSFER => true,[m
+[32m+[m[32m        CURLOPT_ENCODING => "",[m
+[32m+[m[32m        CURLOPT_MAXREDIRS => 10,[m
+[32m+[m[32m        CURLOPT_TIMEOUT => 30,[m
+[32m+[m[32m        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,[m
+[32m+[m[32m        CURLOPT_CUSTOMREQUEST => "POST",[m
+[32m+[m[32m        CURLOPT_POSTFIELDS => $postData,[m
+[32m+[m[32m        CURLOPT_HTTPHEADER => [[m
+[32m+[m[32m            "apiTokenUser: CRMUser",[m
+[32m+[m[32m            "apiTokenPwd: ZEWOALJNADSLLAIE321@!",[m
+[32m+[m[32m            "Content-Type: application/json"[m
+[32m+[m[32m        ],[m
+[32m+[m[32m    ]);[m
+[32m+[m
+[32m+[m[32m    // Execute the request and get the response[m
+[32m+[m[32m    $response = curl_exec($curl);[m
+[32m+[m[32m    $err = curl_error($curl);[m
+[32m+[m
+[32m+[m[32m    // Close the cURL session[m
+[32m+[m[32m    curl_close($curl);[m
+[32m+[m
+[32m+[m[32m    // Log the error and return an error message if there's a cURL error[m
+[32m+[m[32m    if ($err) {[m
+[32m+[m[32m        \Log::error("cURL Error: " . $err);[m
+[32m+[m[32m        return ['status' => 'error', 'message' => "cURL Error: " . $err];[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // Log the raw API response for debugging purposes[m
+[32m+[m[32m    \Log::info('API Response: ', ['response' => $response]);[m
+[32m+[m
+[32m+[m[32m    // Parse the API response[m
+[32m+[m[32m    $decodedResponse = json_decode($response, true);[m
+[32m+[m
+[32m+[m[32m    // Check if the JSON response is valid[m
+[32m+[m[32m    if (json_last_error() !== JSON_ERROR_NONE) {[m
+[32m+[m[32m        return ['status' => 'error', 'message' => 'Invalid JSON response.'];[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // Check if the 'status' key exists in the response[m
+[32m+[m[32m    if (isset($decodedResponse['status'])) {[m
+[32m+[m[32m        // Handle a successful response[m
+[32m+[m[32m        if ($decodedResponse['status'] === 'success') {[m
+[32m+[m[32m            return ['status' => 'success', 'message' => $decodedResponse['data']]; // Assuming 'data' contains the response details[m
+[32m+[m[32m        } else {[m
+[32m+[m[32m            return ['status' => 'error', 'message' => $decodedResponse['message']]; // Return the error message from the API[m
+[32m+[m[32m        }[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m        return ['status' => 'error', 'message' => 'Unexpected response structure.'];[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m[32m    // handle the request from twillio side[m[41m [m
+[32m+[m[32m    public function handleIncomingMessage(Request $request)[m
+[32m+[m[32m    {[m
+[32m+[m[32m        $from = $request->input('From'); // Sender's number[m
+[32m+[m[32m        $userMessage = trim($request->input('Body')); // Message content[m
+[32m+[m
+[32m+[m[32m        \Log::info("Received message from {$from}: {$userMessage}");[m
+[32m+[m
+[32m+[m[32m        if (!isset($this->sessionData[$from])) {[m
+[32m+[m[32m            $this->sessionData[$from] = ['menu_state' => 'main']; // Initialize session data[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        $responseMessage = $this->processUserMessage($userMessage, $from);[m
+[32m+[m
+[32m+[m[32m        \Log::info("Response message for {$from}: {$responseMessage}");[m
+[32m+[m
+[32m+[m[32m        $this->sendMessage($from, $responseMessage);[m
+[32m+[m[32m        return response()->xml(['Message' => $responseMessage]);[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    protected function processUserMessage($userMessage, $from)[m
+[32m+[m[32m    {[m
+[32m+[m[41m        [m
+[32m+[m
+[32m+[m[32m        $mainMenu = [[m
+[32m+[m[32m            '1. ZAAD',[m
+[32m+[m[32m            '2. Internet',[m
+[32m+[m[32m            '3. Sim-card',[m
+[32m+[m[32m            '4. Value Added Services',[m
+[32m+[m[32m            '5. Self Support',[m
+[32m+[m[32m            '6. Additional Services',[m
+[32m+[m[32m            '7. Customer Satisfaction',[m
+[32m+[m[32m            '8. Connect with agent',[m
+[32m+[m[32m        ];[m
+[32m+[m[41m        [m
+[32m+[m[32m        $zaadSubMenu = [[m
+[32m+[m[32m            "1. New ZAAD Account (Information)",[m
+[32m+[m[32m            "2. Merchant (Information)",[m
+[32m+[m[32m            "3. Wrong ZAAD Transfer Support",[m
+[32m+[m[32m            "4. Last ZAAD Transactions",[m
+[32m+[m[32m            "5. Waafi",[m
+[32m+[m[32m            "6. Connect With Agent",[m
+[32m+[m[32m            "0. Go back"[m
+[32m+[m[32m        ];[m
+[32m+[m[41m        [m
+[32m+[m[32m        $internetSubMenu = [[m
+[32m+[m[32m            "1. Fiber",[m
+[32m+[m[32m            "2. Mobile broadband",[m
+[32m+[m[32m            "0. Go Back",[m
+[32m+[m[32m        ];[m
+[32m+[m[41m        [m
+[32m+[m[32m        $fiberSubMenu = [[m
+[32m+[m[32m            "1. New Fiber",[m
+[32m+[m[32m            "2. Internet Billing",[m
+[32m+[m[32m            "3. Troubleshooting",[m
+[32m+[m[32m            "0. Go Back",[m
+[32m+[m[32m        ];[m
+[32m+[m[41m        [m
+[32m+[m[32m        $newFiber = [[m
+[32m+[m[32m            "1. Hargeisa = HRG",[m
+[32m+[m[32m            "2. Burco = BRO",[m
+[32m+[m[32m            "3. Berbera = BER",[m
+[32m+[m[32m            "4. Boorama = BRM",[m
+[32m+[m[32m            "5. Wajaale = WAJ",[m
+[32m+[m[32m            "6. Buuhoodle = BUH",[m
+[32m+[m[32m            "7. Gabiley = GAB",[m
+[32m+[m[32m            "8. Laascaanood = LAS",[m
+[32m+[m[32m            "0. Go Back",[m
+[32m+[m[32m        ];[m
+[32m+[m[41m        [m
+[32m+[m[32m        $internetSpeed = [[m
+[32m+[m[32m            "1. 5MB  $20 Monthly",[m
+[32m+[m[32m            "2. 7MB  $30 Monthly",[m
+[32m+[m[32m            "3. 15MB $50 Monthly",[m
+[32m+[m[32m            "4. 20MB $80 Monthly",[m
+[32m+[m[32m            "5. 35MB $150 Monthly",[m
+[32m+[m[32m            "6. More than the above speed",[m
+[32m+[m[32m            "0. Go Back",[m
+[32m+[m[32m        ];[m
+[32m+[m[41m        [m
+[32m+[m[32m        $simCardSubMenu = [[m
+[32m+[m[32m            "1. Mushaax",[m
+[32m+[m[32m            "2. Pin/Puk",[m
+[32m+[m[32m            "3. Telesom Services",[m
+[32m+[m[32m            "0. Go Back",[m
+[32m+[m[32m        ];[m
+[32m+[m[41m        [m
+[32m+[m[32m        $valueAddedServicesSubMenu = [[m
+[32m+[m[32m            "1. My Status",[m
+[32m+[m[32m            "2. Mobile Education",[m
+[32m+[m[32m            "3. Mobile Market",[m
+[32m+[m[32m            "4. Who is calling me",[m
+[32m+[m[32m            "5. SMS Groupy",[m
+[32m+[m[32m            "6. MWoman",[m
+[32m+[m[32m            "7. Antitheft",[m
+[32m+[m[32m            "0. Go Back",[m
+[32m+[m[32m        ];[m
+[32m+[m[41m        [m
+[32m+[m[32m        $selfSupportSubMenu = [[m
+[32m+[m[32m            "1. Activate/Deactivate Roaming Services",[m
+[32m+[m[32m            "2. Pin/Puk",[m
+[32m+[m[32m            "3. Data Mifi/Super Mifi Balance",[m
+[32m+[m[32m            "4. Prepaid Balance",[m
+[32m+[m[32m            "5. Internet Balance",[m
+[32m+[m[32m            "6. Kaafiye Balance",[m
+[32m+[m[32m            "7. Bonus Balance",[m
+[32m+[m[32m            "8. Wrong ZAAD, EVC, and Data Transfer",[m
+[32m+[m[32m            "9. Unblock Yourself",[m
+[32m+[m[32m            "0. Go Back",[m
+[32m+[m[32m        ];[m
+[32m+[m[41m        [m
+[32m+[m[32m        $additionalServicesSubMenu = [[m
+[32m+[m[32m            "1. Connect with Agent Live",[m
+[32m+[m[32m            "2. Recommended Offers",[m
+[32m+[m[32m            "0. Go Back",[m
+[32m+[m[32m        ];[m
+[32m+[m[41m        [m
+[32m+[m[32m        $customerSatisfactionSubMenu = [[m
+[32m+[m[32m            "1. Very Good",[m
+[32m+[m[32m            "2. Good",[m
+[32m+[m[32m            "3. Okay",[m
+[32m+[m[32m            "4. Bad",[m
+[32m+[m[32m            "5. Very Bad",[m
+[32m+[m[32m            "0. Go Back",[m
+[32m+[m[32m        ];[m
+[32m+[m[32m        // Default greeting and main menu[m
+[32m+[m[32m        if (in_array(strtolower($userMessage), ['hi', 'hello', 'morning', 'good morning', 'asc'])) {[m
+[32m+[m[32m            $responseMessage = "Good MORNING! Please choose what we can help with today:\n" . implode("\n", $mainMenu);[m
+[32m+[m[32m            $this->sessionData[$from]['menu_state'] = 'main';[m
+[32m+[m
+[32m+[m[32m        } elseif ($this->sessionData[$from]['menu_state'] === 'main') {[m
+[32m+[m[32m            // Handle main menu selections[m
+[32m+[m[32m            switch ($userMessage) {[m
+[32m+[m[32m                case '1': // ZAAD[m
+[32m+[m[32m                    $responseMessage = "You have chosen ZAAD services. Please select an option:\n" . implode("\n", $zaadSubMenu);[m
+[32m+[m[32m                    $this->sessionData[$from]['menu_state'] = 'zaad';[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case '2': // Internet[m
+[32m+[m[32m                    $responseMessage = "You have chosen Internet services. Please select an option:\n" . implode("\n", $internetSubMenu);[m
+[32m+[m[32m                    $this->sessionData[$from]['menu_state'] = 'internet';[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case '3': // Sim-card[m
+[32m+[m[32m                    $responseMessage = "You have chosen Sim Card services. Please select an option:\n" . implode("\n", $simCardSubMenu);[m
+[32m+[m[32m                    $this->sessionData[$from]['menu_state'] = 'sim_card';[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case '4': // Sim-card[m
+[32m+[m[32m                    $responseMessage = "Value Added Services[m
+[32m+[m[32m                    . Please select an option:\n" . implode("\n", $valueAddedServicesSubMenu);[m
+[32m+[m[32m                    $this->sessionData[$from]['menu_state'] = 'sim_card';[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case '5': // Sim-card[m
+[32m+[m[32m                    $responseMessage = "Self Support[m
+[32m+[m[32m                    . Please select an option:\n" . implode("\n", $selfSupportSubMenu);[m
+[32m+[m[32m                    $this->sessionData[$from]['menu_state'] = 'sim_card';[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case '6': // Sim-card[m
+[32m+[m[32m                    $responseMessage = "Additional Services. Please select an option:\n" . implode("\n", $additionalServicesSubMenu);[m
+[32m+[m[32m                    $this->sessionData[$from]['menu_state'] = 'sim_card';[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case '7': // Sim-card[m
+[32m+[m[32m                    $responseMessage = "Customer Satisfaction Please select an option:\n" . implode("\n", $customerSatisfactionSubMenu);[m
+[32m+[m[32m                    $this->sessionData[$from]['menu_state'] = 'sim_card';[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case '8': // Sim-card[m
+[32m+[m[32m                    $responseMessage = "You have Connect Live Agent . :\n" . implode("\n",);[m
+[32m+[m[32m                    $this->sessionData[$from]['menu_state'] = 'sim_card';[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                default:[m
+[32m+[m[32m                    $responseMessage = "Sorry, I didn’t understand that. Please type 'hi' or 'hello' to start again.";[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m            }[m
+[32m+[m[32m        } elseif ($this->sessionData[$from]['menu_state'] === 'zaad') {[m
+[32m+[m[32m            // Handle ZAAD submenu selections[m
+[32m+[m[32m            if ($userMessage === "1") {[m
+[32m+[m[32m                // Handle New ZAAD Account[m
+[32m+[m[32m                $responseMessage = "You have chosen to create a new ZAAD account. Please provide your information.";[m
+[32m+[m[32m            } elseif ($userMessage === "2") {[m
+[32m+[m[32m                // Handle Merchant Information[m
+[32m+[m[32m                $responseMessage = "You have chosen Merchant Information. Please specify your merchant details.";[m
+[32m+[m[32m            } elseif ($userMessage === "3") {[m
+[32m+[m[32m                // Handle Wrong ZAAD Transfer Support[m
+[32m+[m[32m                $responseMessage = "You have chosen Wrong ZAAD Transfer Support. Please describe your issue.";[m
+[32m+[m[32m            } elseif ($userMessage === "4") {[m
+[32m+[m[32m                // Handle Last ZAAD Transactions[m
+[32m+[m[32m                $responseMessage = "You have chosen Last ZAAD Transactions. Fetching your last transactions...";[m
+[32m+[m[32m            } elseif ($userMessage === "5") {[m
+[32m+[m[32m                // Handle Waafi[m
+[32m+[m[32m                $responseMessage = "You have chosen Waafi services. Please provide the details.";[m
+[32m+[m[32m            } elseif ($userMessage === "6") {[m
+[32m+[m[32m                // Handle Connect With Agent[m
+[32m+[m[32m                $responseMessage = "You have chosen to connect with an agent. Please hold on.";[m
+[32m+[m[32m            } elseif ($userMessage === "0") {[m
+[32m+[m[32m                // Go back option[m
+[32m+[m[32m                $this->sessionData[$from]['menu_state'] = 'main'; // Reset to main menu[m
+[32m+[m[32m                $responseMessage = "Going back to the main menu.";[m
+[32m+[m[32m            } else {[m
+[32m+[m[32m                // Handle invalid option[m
+[32m+[m[32m                $responseMessage = "Invalid option. Please select a valid submenu option.";[m
+[32m+[m[32m            }[m
+[32m+[m[41m                [m
+[32m+[m[32m        } elseif ($this->sessionData[$from]['menu_state'] === 'sim_card') {[m
+[32m+[m[32m            // Handle Sim-card submenu selections[m
+[32m+[m[32m            switch ($userMessage) {[m
+[32m+[m[32m                case '1':[m
+[32m+[m[32m                    $responseMessage = "Mushaax Information...";[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case '2':[m
+[32m+[m[32m                    $responseMessage = "Please enter your phone number for Pin/Puk:";[m
+[32m+[m[32m                    $this->sessionData[$from]['menu_state'] = 'pin_puk_number_entry';[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                case '0':[m
+[32m+[m[32m                    $responseMessage = "Going back to the main menu...\n" . implode("\n", $mainMenu);[m
+[32m+[m[32m                    $this->sessionData[$from]['menu_state'] = 'main';[m
+[32m+[m[32m                    break;[m
+[32m+[m[32m                default:[m
+[32m+[m[32m                    $responseMessage = "Please select a valid option.";[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        // Handle Pin/Puk number entry[m
+[32m+[m[32m        if ($this->sessionData[$from]['menu_state'] === 'pin_puk_number_entry') {[m
+[32m+[m[32m            if (is_numeric($userMessage) && strlen($userMessage) === 9) {[m
+[32m+[m[32m                $this->sessionData[$from]['pin_puk_number'] = $userMessage;[m
+[32m+[m[32m                $apiResponse = $this->callPinPukAPI($this->sessionData[$from]['pin_puk_number']);[m
+[32m+[m[41m                [m
+[32m+[m[32m                if ($apiResponse['status'] === 'success') {[m
+[32m+[m[32m                    $responseMessage = "Pin/Puk details for number: " . $this->sessionData[$from]['pin_puk_number'] . "\nResponse: " . $apiResponse['message'];[m
+[32m+[m[32m                } else {[m
+[32m+[m[32m                    $responseMessage = "Error: " . $apiResponse['message'];[m
+[32m+[m[32m                }[m
+[32m+[m
+[32m+[m[32m                $this->sessionData[$from]['menu_state'] = 'sim_card'; // Return to Sim Card menu[m
+[32m+[m[32m                unset($this->sessionData[$from]['pin_puk_number']); // Reset stored number[m
+[32m+[m[32m            } else {[m
+[32m+[m[32m                $responseMessage = "Please enter a valid 9-digit number:";[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        return $responseMessage;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[41m    [m
+[32m+[m
+[32m+[m[32m    protected function callPinPukAPI($number)[m
+[32m+[m[32m    {[m
+[32m+[m[32m        return [[m
+[32m+[m[32m            'status' => 'success',[m
+[32m+[m[32m            'message' => 'Details for the requested number.'[m
+[32m+[m[32m        ];[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[1mdiff --git a/app/Http/Kernel.php b/app/Http/Kernel.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mindex 0b91832..8e60a95[m
+[1m--- a/app/Http/Kernel.php[m
+[1m+++ b/app/Http/Kernel.php[m
+[36m@@ -6,15 +6,12 @@[m
+ [m
+ class Kernel extends HttpKernel[m
+ {[m
+[31m-[m
+[31m-    [m
+     /**[m
+      * The application's global HTTP middleware stack.[m
+      *[m
+      * @var array[m
+      */[m
+     protected $middleware = [[m
+[31m-        \App\Http\Middleware\PreventClickjacking::class,[m
+         \App\Http\Middleware\TrustProxies::class,[m
+         \App\Http\Middleware\CheckForMaintenanceMode::class,[m
+         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,[m
+[36m@@ -28,8 +25,6 @@[m [mclass Kernel extends HttpKernel[m
+      * @var array[m
+      */[m
+     protected $routeMiddleware = [[m
+[31m-        'prevent-clickjacking' => \App\Http\Middleware\PreventClickjacking::class,[m
+[31m-        'role' => \App\Http\Middleware\RoleMiddleware::class,[m
+         'auth' => \App\Http\Middleware\Authenticate::class,[m
+         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,[m
+         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,[m
+[36m@@ -57,5 +52,4 @@[m [mclass Kernel extends HttpKernel[m
+             \Illuminate\Routing\Middleware\SubstituteBindings::class,[m
+         ],[m
+     ];[m
+[31m-    [m
+ }[m
+[1mdiff --git a/app/Http/Middleware/PreventClickjacking.php b/app/Http/Middleware/PreventClickjacking.php[m
+[1mdeleted file mode 100644[m
+[1mindex 705860e..0000000[m
+[1m--- a/app/Http/Middleware/PreventClickjacking.php[m
+[1m+++ /dev/null[m
+[36m@@ -1,19 +0,0 @@[m
+[31m-<?php[m
+[31m-namespace App\Http\Middleware;[m
+[31m-[m
+[31m-use Closure;[m
+[31m-[m
+[31m-class PreventClickjacking[m
+[31m-{[m
+[31m-    public function handle($request, Closure $next)[m
+[31m-    {[m
+[31m-        // Add the X-Frame-Options header to prevent clickjacking[m
+[31m-        $response = $next($request);[m
+[31m-[m
+[31m-        // Set the header to DENY to prevent all framing[m
+[31m-        $response->headers->set('X-Frame-Options', 'DENY');[m
+[31m-        // Alternatively, use Content-Security-Policy with frame-ancestors[m
+[31m-        $response->headers->set('Content-Security-Policy', "frame-ancestors 'none'");[m
+[31m-        return $response;[m
+[31m-    }[m
+[31m-}[m
+[1mdiff --git a/app/Http/Middleware/RoleMiddleware.php b/app/Http/Middleware/RoleMiddleware.php[m
+[1mdeleted file mode 100644[m
+[1mindex 5b20af6..0000000[m
+[1m--- a/app/Http/Middleware/RoleMiddleware.php[m
+[1m+++ /dev/null[m
+[36m@@ -1,17 +0,0 @@[m
+[31m-<?php[m
+[31m-namespace App\Http\Middleware;[m
+[31m-[m
+[31m-use Closure;[m
+[31m-use Illuminate\Support\Facades\Auth;[m
+[31m-[m
+[31m-class RoleMiddleware[m
+[31m-{[m
+[31m-    public function handle($request, Closure $next, $role)[m
+[31m-    {[m
+[31m-        if (!Auth::check() || Auth::user()->role !== $role) {[m
+[31m-            abort(403, 'Unauthorized action.');[m
+[31m-        }[m
+[31m-[m
+[31m-        return $next($request);[m
+[31m-    }[m
+[31m-}[m
+[1mdiff --git a/app/Http/Middleware/VerifyCsrfToken.php b/app/Http/Middleware/VerifyCsrfToken.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Models/User.php b/app/Models/User.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Providers/AppServiceProvider.php b/app/Providers/AppServiceProvider.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/app/Providers/RouteServiceProvider.php b/app/Providers/RouteServiceProvider.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/bootstrap/app.php b/bootstrap/app.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/bootstrap/cache/.gitignore b/bootstrap/cache/.gitignore[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/bootstrap/providers.php b/bootstrap/providers.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/composer.json b/composer.json[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/composer.lock b/composer.lock[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/config/admin.php b/config/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/config/app.php b/config/app.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/config/auth.php b/config/auth.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/config/cache.php b/config/cache.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/config/database.php b/config/database.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/config/filesystems.php b/config/filesystems.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/config/logging.php b/config/logging.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/config/mail.php b/config/mail.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/config/queue.php b/config/queue.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/config/sanctum.php b/config/sanctum.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/config/services.php b/config/services.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/config/session.php b/config/session.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mindex 1e1e840..f0b6541[m
+[1m--- a/config/session.php[m
+[1m+++ b/config/session.php[m
+[36m@@ -214,9 +214,4 @@[m
+ [m
+     'partitioned' => env('SESSION_PARTITIONED_COOKIE', false),[m
+ [m
+[31m-[m
+[31m-    'secure' => env('SESSION_SECURE_COOKIE', false),  // Set to true for HTTPS[m
+[31m-    'http_only' => true,  // Ensures HttpOnly flag is set on session cookies[m
+[31m-[m
+[31m-[m
+ ];[m
+[1mdiff --git a/database/.gitignore b/database/.gitignore[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/database/factories/UserFactory.php b/database/factories/UserFactory.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/database/migrations/0001_01_01_000000_create_users_table.php b/database/migrations/0001_01_01_000000_create_users_table.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/database/migrations/0001_01_01_000001_create_cache_table.php b/database/migrations/0001_01_01_000001_create_cache_table.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/database/migrations/0001_01_01_000002_create_jobs_table.php b/database/migrations/0001_01_01_000002_create_jobs_table.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/database/migrations/2016_01_04_173148_create_admin_tables.php b/database/migrations/2016_01_04_173148_create_admin_tables.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/database/migrations/2024_10_19_062749_create_personal_access_tokens_table.php b/database/migrations/2024_10_19_062749_create_personal_access_tokens_table.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/database/seeders/DatabaseSeeder.php b/database/seeders/DatabaseSeeder.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/package-lock.json b/package-lock.json[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/package.json b/package.json[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/phpunit.xml b/phpunit.xml[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/.htaccess b/public/.htaccess[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/favicon.ico b/public/favicon.ico[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/index.php b/public/index.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/robots.txt b/public/robots.txt[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin-test/test.js b/public/vendor/open-admin-test/test.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/.gitignore b/public/vendor/open-admin/.gitignore[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/axios/axios.min.js b/public/vendor/open-admin/axios/axios.min.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/bootstrap.bundle.min.js b/public/vendor/open-admin/bootstrap5/bootstrap.bundle.min.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/bootstrap.bundle.min.js.map b/public/vendor/open-admin/bootstrap5/bootstrap.bundle.min.js.map[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/plugins/autocomplete.js b/public/vendor/open-admin/bootstrap5/plugins/autocomplete.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_accordion.scss b/public/vendor/open-admin/bootstrap5/scss/_accordion.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_alert.scss b/public/vendor/open-admin/bootstrap5/scss/_alert.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_badge.scss b/public/vendor/open-admin/bootstrap5/scss/_badge.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_breadcrumb.scss b/public/vendor/open-admin/bootstrap5/scss/_breadcrumb.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_button-group.scss b/public/vendor/open-admin/bootstrap5/scss/_button-group.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_buttons.scss b/public/vendor/open-admin/bootstrap5/scss/_buttons.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_card.scss b/public/vendor/open-admin/bootstrap5/scss/_card.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_carousel.scss b/public/vendor/open-admin/bootstrap5/scss/_carousel.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_close.scss b/public/vendor/open-admin/bootstrap5/scss/_close.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_containers.scss b/public/vendor/open-admin/bootstrap5/scss/_containers.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_dropdown.scss b/public/vendor/open-admin/bootstrap5/scss/_dropdown.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_forms.scss b/public/vendor/open-admin/bootstrap5/scss/_forms.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_functions.scss b/public/vendor/open-admin/bootstrap5/scss/_functions.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_grid.scss b/public/vendor/open-admin/bootstrap5/scss/_grid.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_helpers.scss b/public/vendor/open-admin/bootstrap5/scss/_helpers.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_images.scss b/public/vendor/open-admin/bootstrap5/scss/_images.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_list-group.scss b/public/vendor/open-admin/bootstrap5/scss/_list-group.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_mixins.scss b/public/vendor/open-admin/bootstrap5/scss/_mixins.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_modal.scss b/public/vendor/open-admin/bootstrap5/scss/_modal.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_nav.scss b/public/vendor/open-admin/bootstrap5/scss/_nav.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_navbar.scss b/public/vendor/open-admin/bootstrap5/scss/_navbar.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_offcanvas.scss b/public/vendor/open-admin/bootstrap5/scss/_offcanvas.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_pagination.scss b/public/vendor/open-admin/bootstrap5/scss/_pagination.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_placeholders.scss b/public/vendor/open-admin/bootstrap5/scss/_placeholders.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_popover.scss b/public/vendor/open-admin/bootstrap5/scss/_popover.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_progress.scss b/public/vendor/open-admin/bootstrap5/scss/_progress.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_reboot.scss b/public/vendor/open-admin/bootstrap5/scss/_reboot.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_root.scss b/public/vendor/open-admin/bootstrap5/scss/_root.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_spinners.scss b/public/vendor/open-admin/bootstrap5/scss/_spinners.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_tables.scss b/public/vendor/open-admin/bootstrap5/scss/_tables.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_toasts.scss b/public/vendor/open-admin/bootstrap5/scss/_toasts.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_tooltip.scss b/public/vendor/open-admin/bootstrap5/scss/_tooltip.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_transitions.scss b/public/vendor/open-admin/bootstrap5/scss/_transitions.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_type.scss b/public/vendor/open-admin/bootstrap5/scss/_type.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_utilities.scss b/public/vendor/open-admin/bootstrap5/scss/_utilities.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/_variables.scss b/public/vendor/open-admin/bootstrap5/scss/_variables.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/bootstrap-grid.scss b/public/vendor/open-admin/bootstrap5/scss/bootstrap-grid.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/bootstrap-reboot.scss b/public/vendor/open-admin/bootstrap5/scss/bootstrap-reboot.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/bootstrap-utilities.scss b/public/vendor/open-admin/bootstrap5/scss/bootstrap-utilities.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/bootstrap.scss b/public/vendor/open-admin/bootstrap5/scss/bootstrap.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/forms/_floating-labels.scss b/public/vendor/open-admin/bootstrap5/scss/forms/_floating-labels.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/forms/_form-check.scss b/public/vendor/open-admin/bootstrap5/scss/forms/_form-check.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/forms/_form-control.scss b/public/vendor/open-admin/bootstrap5/scss/forms/_form-control.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/forms/_form-range.scss b/public/vendor/open-admin/bootstrap5/scss/forms/_form-range.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/forms/_form-select.scss b/public/vendor/open-admin/bootstrap5/scss/forms/_form-select.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/forms/_form-text.scss b/public/vendor/open-admin/bootstrap5/scss/forms/_form-text.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/forms/_input-group.scss b/public/vendor/open-admin/bootstrap5/scss/forms/_input-group.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/forms/_labels.scss b/public/vendor/open-admin/bootstrap5/scss/forms/_labels.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/forms/_validation.scss b/public/vendor/open-admin/bootstrap5/scss/forms/_validation.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/helpers/_clearfix.scss b/public/vendor/open-admin/bootstrap5/scss/helpers/_clearfix.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/helpers/_colored-links.scss b/public/vendor/open-admin/bootstrap5/scss/helpers/_colored-links.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/helpers/_position.scss b/public/vendor/open-admin/bootstrap5/scss/helpers/_position.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/helpers/_ratio.scss b/public/vendor/open-admin/bootstrap5/scss/helpers/_ratio.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/helpers/_stacks.scss b/public/vendor/open-admin/bootstrap5/scss/helpers/_stacks.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/helpers/_stretched-link.scss b/public/vendor/open-admin/bootstrap5/scss/helpers/_stretched-link.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/helpers/_text-truncation.scss b/public/vendor/open-admin/bootstrap5/scss/helpers/_text-truncation.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/helpers/_visually-hidden.scss b/public/vendor/open-admin/bootstrap5/scss/helpers/_visually-hidden.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/helpers/_vr.scss b/public/vendor/open-admin/bootstrap5/scss/helpers/_vr.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_alert.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_alert.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_backdrop.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_backdrop.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_border-radius.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_border-radius.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_box-shadow.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_box-shadow.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_breakpoints.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_breakpoints.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_buttons.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_buttons.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_caret.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_caret.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_clearfix.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_clearfix.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_color-scheme.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_color-scheme.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_container.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_container.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_deprecate.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_deprecate.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_forms.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_forms.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_gradients.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_gradients.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_grid.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_grid.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_image.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_image.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_list-group.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_list-group.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_lists.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_lists.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_pagination.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_pagination.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_reset-text.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_reset-text.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_resize.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_resize.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_table-variants.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_table-variants.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_text-truncate.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_text-truncate.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_transition.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_transition.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_utilities.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_utilities.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/mixins/_visually-hidden.scss b/public/vendor/open-admin/bootstrap5/scss/mixins/_visually-hidden.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/utilities/_api.scss b/public/vendor/open-admin/bootstrap5/scss/utilities/_api.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/bootstrap5/scss/vendor/_rfs.scss b/public/vendor/open-admin/bootstrap5/scss/vendor/_rfs.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/choicesjs/scripts/choices.js b/public/vendor/open-admin/choicesjs/scripts/choices.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/choicesjs/scripts/choices.min.js b/public/vendor/open-admin/choicesjs/scripts/choices.min.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/choicesjs/styles/base.css b/public/vendor/open-admin/choicesjs/styles/base.css[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/choicesjs/styles/base.min.css b/public/vendor/open-admin/choicesjs/styles/base.min.css[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/choicesjs/styles/choices.css b/public/vendor/open-admin/choicesjs/styles/choices.css[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/choicesjs/styles/choices.min.css b/public/vendor/open-admin/choicesjs/styles/choices.min.css[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/coloris/LICENSE b/public/vendor/open-admin/coloris/LICENSE[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/coloris/README.md b/public/vendor/open-admin/coloris/README.md[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/coloris/coloris.min.css b/public/vendor/open-admin/coloris/coloris.min.css[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/coloris/coloris.min.js b/public/vendor/open-admin/coloris/coloris.min.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/colr_pickr/colr_pickr.min.css b/public/vendor/open-admin/colr_pickr/colr_pickr.min.css[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/colr_pickr/colr_pickr.min.js b/public/vendor/open-admin/colr_pickr/colr_pickr.min.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/dual-listbox/LICENSE b/public/vendor/open-admin/dual-listbox/LICENSE[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/dual-listbox/dual-listbox-custom.js b/public/vendor/open-admin/dual-listbox/dual-listbox-custom.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/dual-listbox/dual-listbox.css b/public/vendor/open-admin/dual-listbox/dual-listbox.css[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/dual-listbox/dual-listbox.js b/public/vendor/open-admin/dual-listbox/dual-listbox.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fields/file-upload/file-upload.css b/public/vendor/open-admin/fields/file-upload/file-upload.css[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fields/file-upload/file-upload.js b/public/vendor/open-admin/fields/file-upload/file-upload.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fields/icon-picker/icon-picker.js b/public/vendor/open-admin/fields/icon-picker/icon-picker.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fields/icon-picker/icon-picker.scss b/public/vendor/open-admin/fields/icon-picker/icon-picker.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fields/number-input.js b/public/vendor/open-admin/fields/number-input.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/flatpickr/flatpicker-custom.css b/public/vendor/open-admin/flatpickr/flatpicker-custom.css[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/flatpickr/flatpickr.min.css b/public/vendor/open-admin/flatpickr/flatpickr.min.css[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/flatpickr/flatpickr.min.js b/public/vendor/open-admin/flatpickr/flatpickr.min.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/flatpickr/plugins/minMaxTimePlugin.js b/public/vendor/open-admin/flatpickr/plugins/minMaxTimePlugin.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/flatpickr/plugins/rangePlugin.js b/public/vendor/open-admin/flatpickr/plugins/rangePlugin.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/LICENSE.txt b/public/vendor/open-admin/fontawesome/LICENSE.txt[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/scss/_animated.scss b/public/vendor/open-admin/fontawesome/scss/_animated.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/scss/_bordered-pulled.scss b/public/vendor/open-admin/fontawesome/scss/_bordered-pulled.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/scss/_core.scss b/public/vendor/open-admin/fontawesome/scss/_core.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/scss/_fixed-width.scss b/public/vendor/open-admin/fontawesome/scss/_fixed-width.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/scss/_icons.scss b/public/vendor/open-admin/fontawesome/scss/_icons.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/scss/_larger.scss b/public/vendor/open-admin/fontawesome/scss/_larger.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/scss/_list.scss b/public/vendor/open-admin/fontawesome/scss/_list.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/scss/_mixins.scss b/public/vendor/open-admin/fontawesome/scss/_mixins.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/scss/_rotated-flipped.scss b/public/vendor/open-admin/fontawesome/scss/_rotated-flipped.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/scss/_screen-reader.scss b/public/vendor/open-admin/fontawesome/scss/_screen-reader.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/scss/_shims.scss b/public/vendor/open-admin/fontawesome/scss/_shims.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/scss/_stacked.scss b/public/vendor/open-admin/fontawesome/scss/_stacked.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/scss/_variables.scss b/public/vendor/open-admin/fontawesome/scss/_variables.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/scss/brands.scss b/public/vendor/open-admin/fontawesome/scss/brands.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/scss/fontawesome.scss b/public/vendor/open-admin/fontawesome/scss/fontawesome.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/scss/regular.scss b/public/vendor/open-admin/fontawesome/scss/regular.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/scss/solid.scss b/public/vendor/open-admin/fontawesome/scss/solid.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/scss/v4-shims.scss b/public/vendor/open-admin/fontawesome/scss/v4-shims.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/webfonts/fa-brands-400.eot b/public/vendor/open-admin/fontawesome/webfonts/fa-brands-400.eot[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/webfonts/fa-brands-400.svg b/public/vendor/open-admin/fontawesome/webfonts/fa-brands-400.svg[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/webfonts/fa-brands-400.ttf b/public/vendor/open-admin/fontawesome/webfonts/fa-brands-400.ttf[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/webfonts/fa-brands-400.woff b/public/vendor/open-admin/fontawesome/webfonts/fa-brands-400.woff[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/webfonts/fa-brands-400.woff2 b/public/vendor/open-admin/fontawesome/webfonts/fa-brands-400.woff2[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/webfonts/fa-regular-400.eot b/public/vendor/open-admin/fontawesome/webfonts/fa-regular-400.eot[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/webfonts/fa-regular-400.svg b/public/vendor/open-admin/fontawesome/webfonts/fa-regular-400.svg[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/webfonts/fa-regular-400.ttf b/public/vendor/open-admin/fontawesome/webfonts/fa-regular-400.ttf[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/webfonts/fa-regular-400.woff b/public/vendor/open-admin/fontawesome/webfonts/fa-regular-400.woff[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/webfonts/fa-regular-400.woff2 b/public/vendor/open-admin/fontawesome/webfonts/fa-regular-400.woff2[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/webfonts/fa-solid-900.eot b/public/vendor/open-admin/fontawesome/webfonts/fa-solid-900.eot[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/webfonts/fa-solid-900.svg b/public/vendor/open-admin/fontawesome/webfonts/fa-solid-900.svg[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/webfonts/fa-solid-900.ttf b/public/vendor/open-admin/fontawesome/webfonts/fa-solid-900.ttf[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/webfonts/fa-solid-900.woff b/public/vendor/open-admin/fontawesome/webfonts/fa-solid-900.woff[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/fontawesome/webfonts/fa-solid-900.woff2 b/public/vendor/open-admin/fontawesome/webfonts/fa-solid-900.woff2[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/inputmask/bindings/inputmask.binding.js b/public/vendor/open-admin/inputmask/bindings/inputmask.binding.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/inputmask/inputmask.min.js b/public/vendor/open-admin/inputmask/inputmask.min.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/leaflet/images/marker-icon.png b/public/vendor/open-admin/leaflet/images/marker-icon.png[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/leaflet/images/marker-shadow.png b/public/vendor/open-admin/leaflet/images/marker-shadow.png[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/leaflet/leaflet-geosearch.css b/public/vendor/open-admin/leaflet/leaflet-geosearch.css[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/leaflet/leaflet-geosearch.js b/public/vendor/open-admin/leaflet/leaflet-geosearch.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/leaflet/leaflet.css b/public/vendor/open-admin/leaflet/leaflet.css[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/leaflet/leaflet.js b/public/vendor/open-admin/leaflet/leaflet.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/nprogress/nprogress.css b/public/vendor/open-admin/nprogress/nprogress.css[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/nprogress/nprogress.js b/public/vendor/open-admin/nprogress/nprogress.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/css/pages/dashboard.css b/public/vendor/open-admin/open-admin/css/pages/dashboard.css[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/css/pages/dashboard.css.map b/public/vendor/open-admin/open-admin/css/pages/dashboard.css.map[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/css/styles.css b/public/vendor/open-admin/open-admin/css/styles.css[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/css/styles.css.map b/public/vendor/open-admin/open-admin/css/styles.css.map[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/fonts/Open Sans Bold.eot b/public/vendor/open-admin/open-admin/fonts/Open Sans Bold.eot[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/fonts/Open Sans Bold.svg b/public/vendor/open-admin/open-admin/fonts/Open Sans Bold.svg[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/fonts/Open Sans Bold.woff b/public/vendor/open-admin/open-admin/fonts/Open Sans Bold.woff[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/fonts/Open Sans Bold.woff2 b/public/vendor/open-admin/open-admin/fonts/Open Sans Bold.woff2[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/fonts/Open Sans Italic.eot b/public/vendor/open-admin/open-admin/fonts/Open Sans Italic.eot[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/fonts/Open Sans Italic.svg b/public/vendor/open-admin/open-admin/fonts/Open Sans Italic.svg[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/fonts/Open Sans Italic.woff b/public/vendor/open-admin/open-admin/fonts/Open Sans Italic.woff[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/fonts/Open Sans Italic.woff2 b/public/vendor/open-admin/open-admin/fonts/Open Sans Italic.woff2[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/fonts/Open Sans Light.css b/public/vendor/open-admin/open-admin/fonts/Open Sans Light.css[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/fonts/Open Sans Light.eot b/public/vendor/open-admin/open-admin/fonts/Open Sans Light.eot[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/fonts/Open Sans Light.svg b/public/vendor/open-admin/open-admin/fonts/Open Sans Light.svg[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/fonts/Open Sans Light.woff b/public/vendor/open-admin/open-admin/fonts/Open Sans Light.woff[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/fonts/Open Sans Light.woff2 b/public/vendor/open-admin/open-admin/fonts/Open Sans Light.woff2[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/fonts/Open Sans Regular.eot b/public/vendor/open-admin/open-admin/fonts/Open Sans Regular.eot[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/fonts/Open Sans Regular.svg b/public/vendor/open-admin/open-admin/fonts/Open Sans Regular.svg[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/fonts/Open Sans Regular.woff b/public/vendor/open-admin/open-admin/fonts/Open Sans Regular.woff[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/fonts/Open Sans Regular.woff2 b/public/vendor/open-admin/open-admin/fonts/Open Sans Regular.woff2[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/gfx/user.svg b/public/vendor/open-admin/open-admin/gfx/user.svg[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/js/helpers.js b/public/vendor/open-admin/open-admin/js/helpers.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/js/open-admin-actions.js b/public/vendor/open-admin/open-admin/js/open-admin-actions.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/js/open-admin-form.js b/public/vendor/open-admin/open-admin/js/open-admin-form.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/js/open-admin-grid-inline-edit.js b/public/vendor/open-admin/open-admin/js/open-admin-grid-inline-edit.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/js/open-admin-grid.js b/public/vendor/open-admin/open-admin/js/open-admin-grid.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/js/open-admin-resource.js b/public/vendor/open-admin/open-admin/js/open-admin-resource.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/js/open-admin-selectable.js b/public/vendor/open-admin/open-admin/js/open-admin-selectable.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/js/open-admin-toastr.js b/public/vendor/open-admin/open-admin/js/open-admin-toastr.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/js/open-admin-tree.js b/public/vendor/open-admin/open-admin/js/open-admin-tree.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/js/open-admin.js b/public/vendor/open-admin/open-admin/js/open-admin.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/js/polyfills.js b/public/vendor/open-admin/open-admin/js/polyfills.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/scss/bootstrap-extend.scss b/public/vendor/open-admin/open-admin/scss/bootstrap-extend.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/scss/bootstrap-vars.scss b/public/vendor/open-admin/open-admin/scss/bootstrap-vars.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/scss/content.scss b/public/vendor/open-admin/open-admin/scss/content.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/scss/default-theme.scss b/public/vendor/open-admin/open-admin/scss/default-theme.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/scss/fontawesome.scss b/public/vendor/open-admin/open-admin/scss/fontawesome.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/scss/form.scss b/public/vendor/open-admin/open-admin/scss/form.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/scss/grid.scss b/public/vendor/open-admin/open-admin/scss/grid.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/scss/mixins.scss b/public/vendor/open-admin/open-admin/scss/mixins.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/scss/pages/dashboard.scss b/public/vendor/open-admin/open-admin/scss/pages/dashboard.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/scss/skeleton.scss b/public/vendor/open-admin/open-admin/scss/skeleton.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/scss/styles.scss b/public/vendor/open-admin/open-admin/scss/styles.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/scss/styles.scss.map b/public/vendor/open-admin/open-admin/scss/styles.scss.map[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/open-admin/scss/toastr.scss b/public/vendor/open-admin/open-admin/scss/toastr.scss[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/sortablejs/Sortable.min.js b/public/vendor/open-admin/sortablejs/Sortable.min.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/sortablejs/nestable.css b/public/vendor/open-admin/sortablejs/nestable.css[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/sweetalert2/sweetalert2.all.min.js b/public/vendor/open-admin/sweetalert2/sweetalert2.all.min.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/sweetalert2/sweetalert2.min.css b/public/vendor/open-admin/sweetalert2/sweetalert2.min.css[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/sweetalert2/sweetalert2.min.js b/public/vendor/open-admin/sweetalert2/sweetalert2.min.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/test/test.js b/public/vendor/open-admin/test/test.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/toastify-js/toastify-es.js b/public/vendor/open-admin/toastify-js/toastify-es.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/toastify-js/toastify.css b/public/vendor/open-admin/toastify-js/toastify.css[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/public/vendor/open-admin/toastify-js/toastify.js b/public/vendor/open-admin/toastify-js/toastify.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/css/app.css b/resources/css/app.css[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/js/app.js b/resources/js/app.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/js/bootstrap.js b/resources/js/bootstrap.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/ar/admin.php b/resources/lang/ar/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/az/admin.php b/resources/lang/az/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/bn/admin.php b/resources/lang/bn/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/de/admin.php b/resources/lang/de/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/en/admin.php b/resources/lang/en/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/es/admin.php b/resources/lang/es/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/fa/admin.php b/resources/lang/fa/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/fr/admin.php b/resources/lang/fr/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/he/admin.php b/resources/lang/he/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/id/admin.php b/resources/lang/id/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/ja/admin.php b/resources/lang/ja/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/ko/admin.php b/resources/lang/ko/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/ms/admin.php b/resources/lang/ms/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/nl/admin.php b/resources/lang/nl/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/pl/admin.php b/resources/lang/pl/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/pt-BR/admin.php b/resources/lang/pt-BR/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/pt/admin.php b/resources/lang/pt/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/ru/admin.php b/resources/lang/ru/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/tr/admin.php b/resources/lang/tr/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/uk/admin.php b/resources/lang/uk/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/ur/admin.php b/resources/lang/ur/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/zh-CN/admin.php b/resources/lang/zh-CN/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/lang/zh-TW/admin.php b/resources/lang/zh-TW/admin.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/views/activate_roaming_form.blade.php b/resources/views/activate_roaming_form.blade.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/views/block_transaction_form.blade.php b/resources/views/block_transaction_form.blade.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/views/exchange_rate.blade.php b/resources/views/exchange_rate.blade.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/views/fiber_installation_form.blade.php b/resources/views/fiber_installation_form.blade.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/views/menu.blade.php b/resources/views/menu.blade.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/views/otp/form.blade.php b/resources/views/otp/form.blade.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mindex 29a7932..7a45b44[m
+[1m--- a/resources/views/otp/form.blade.php[m
+[1m+++ b/resources/views/otp/form.blade.php[m
+[36m@@ -3,7 +3,7 @@[m
+ <head>[m
+     <meta charset="UTF-8">[m
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">[m
+[31m-    <title>Send Form</title>[m
+[32m+[m[32m    <title>Send OTP</title>[m
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">[m
+ </head>[m
+ <body>[m
+[1mdiff --git a/resources/views/otp__form.blade.php b/resources/views/otp__form.blade.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/views/sim-details-form.blade.php b/resources/views/sim-details-form.blade.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/views/sms_response.blade.php b/resources/views/sms_response.blade.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/views/subscription.blade.php b/resources/views/subscription.blade.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/views/support/index.blade.php b/resources/views/support/index.blade.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/views/troubleshooting_form.blade.php b/resources/views/troubleshooting_form.blade.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/resources/views/welcome.blade.php b/resources/views/welcome.blade.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/routes/api.php b/routes/api.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mindex 2bb765b..8cfc200[m
+[1m--- a/routes/api.php[m
+[1m+++ b/routes/api.php[m
+[36m@@ -14,18 +14,6 @@[m
+ use App\Http\Controllers\OtpController;[m
+ use App\Http\Controllers\CustomerSupportController;[m
+ [m
+[31m-[m
+[31m-Route::middleware('prevent-clickjacking')->group(function () {[m
+[31m-    Route::get('/admin', function () {[m
+[31m-        return view('admin.dashboard');[m
+[31m-    })->name('admin.dashboard');[m
+[31m-[m
+[31m-    Route::get('/admin/auth/login', function () {[m
+[31m-        return view('auth.login');[m
+[31m-    })->name('admin.login');[m
+[31m-});[m
+[31m-[m
+[31m-[m
+ Route::post('/support/get-references', [CustomerSupportController::class, 'getReferences'])->name('support.getReferences');[m
+ [m
+ [m
+[1mdiff --git a/routes/console.php b/routes/console.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/routes/web.php b/routes/web.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mindex c8b947d..7f889af[m
+[1m--- a/routes/web.php[m
+[1m+++ b/routes/web.php[m
+[36m@@ -12,15 +12,6 @@[m
+ use App\Http\Controllers\OtpController;[m
+ use App\Http\Controllers\CustomerSupportController;[m
+ [m
+[31m-[m
+[31m-// Redirect root URL to /admin[m
+[31m-Route::redirect('/', '/admin');[m
+[31m-[m
+[31m-[m
+[31m-[m
+[31m-[m
+[31m-[m
+[31m-[m
+ Route::get('/support', [CustomerSupportController::class, 'index'])->name('support.index');[m
+ Route::post('/support/get-references', [CustomerSupportController::class, 'getReferences'])->name('support.getReferences');[m
+ [m
+[36m@@ -42,14 +33,15 @@[m
+ // sms advertisement route[m
+ Route::get('/sms-form', [SmsController::class, 'showForm'])->name('sms.form');[m
+ // Route::post('/send-advertisement-sms', [SmsController::class, 'sendAdvertisementSms'])->name('send.advertisement.sms');[m
+[32m+[m[32mRoute::post('/whatsapp/test', [WhatsAppBotController::class, 'testMessage'])->name('whatsapp.test');[m
+ [m
+[31m-// Route::get('/', function () {[m
+[31m-//     return view('welcome');[m
+[31m-// });[m
+[32m+[m[32mRoute::get('/', function () {[m
+[32m+[m[32m    return view('welcome');[m
+[32m+[m[32m});[m
+ [m
+ Route::get('/exchange-rate', [ExchangeRateController::class, 'getExchangeRate'])->name('exchange.rate');[m
+ [m
+ // For testing with Blade template[m
+[31m-// Route::get('/subscription', function () {[m
+[31m-//     return view('subscription');[m
+[31m-// })->name('subscription');[m
+[32m+[m[32mRoute::get('/subscription', function () {[m
+[32m+[m[32m    return view('subscription');[m
+[32m+[m[32m})->name('subscription');[m
+[1mdiff --git a/storage/app/.gitignore b/storage/app/.gitignore[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/storage/app/private/.gitignore b/storage/app/private/.gitignore[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/storage/app/public/.gitignore b/storage/app/public/.gitignore[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/storage/framework/.gitignore b/storage/framework/.gitignore[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/storage/framework/cache/.gitignore b/storage/framework/cache/.gitignore[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/storage/framework/cache/data/.gitignore b/storage/framework/cache/data/.gitignore[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/storage/framework/sessions/.gitignore b/storage/framework/sessions/.gitignore[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/storage/framework/testing/.gitignore b/storage/framework/testing/.gitignore[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/storage/framework/views/.gitignore b/storage/framework/views/.gitignore[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/storage/logs/.gitignore b/storage/logs/.gitignore[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/tests/Feature/ExampleTest.php b/tests/Feature/ExampleTest.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/tests/TestCase.php b/tests/TestCase.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/tests/Unit/ExampleTest.php b/tests/Unit/ExampleTest.php[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
+[1mdiff --git a/vite.config.js b/vite.config.js[m
+[1mold mode 100644[m
+[1mnew mode 100755[m
