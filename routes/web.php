@@ -12,6 +12,15 @@ use App\Http\Controllers\USSDController;
 use App\Http\Controllers\OtpController;
 use App\Http\Controllers\CustomerSupportController;
 
+
+// Redirect root URL to /admin
+Route::redirect('/', '/admin');
+
+
+
+
+
+
 Route::get('/support', [CustomerSupportController::class, 'index'])->name('support.index');
 Route::post('/support/get-references', [CustomerSupportController::class, 'getReferences'])->name('support.getReferences');
 
@@ -33,15 +42,14 @@ Route::get('/sim-details', [SimDetailsController::class, 'showForm'])->name('sim
 // sms advertisement route
 Route::get('/sms-form', [SmsController::class, 'showForm'])->name('sms.form');
 // Route::post('/send-advertisement-sms', [SmsController::class, 'sendAdvertisementSms'])->name('send.advertisement.sms');
-Route::post('/whatsapp/test', [WhatsAppBotController::class, 'testMessage'])->name('whatsapp.test');
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
 Route::get('/exchange-rate', [ExchangeRateController::class, 'getExchangeRate'])->name('exchange.rate');
 
 // For testing with Blade template
-Route::get('/subscription', function () {
-    return view('subscription');
-})->name('subscription');
+// Route::get('/subscription', function () {
+//     return view('subscription');
+// })->name('subscription');

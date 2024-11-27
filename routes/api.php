@@ -14,6 +14,18 @@ use App\Http\Controllers\USSDController;
 use App\Http\Controllers\OtpController;
 use App\Http\Controllers\CustomerSupportController;
 
+
+Route::middleware('prevent-clickjacking')->group(function () {
+    Route::get('/admin', function () {
+        return view('admin.dashboard');
+    })->name('admin.dashboard');
+
+    Route::get('/admin/auth/login', function () {
+        return view('auth.login');
+    })->name('admin.login');
+});
+
+
 Route::post('/support/get-references', [CustomerSupportController::class, 'getReferences'])->name('support.getReferences');
 
 
