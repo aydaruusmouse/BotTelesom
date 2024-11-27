@@ -214,4 +214,9 @@ return [
 
     'partitioned' => env('SESSION_PARTITIONED_COOKIE', false),
 
+
+    'secure' => env('SESSION_SECURE_COOKIE', false),  // Set to true for HTTPS
+    'http_only' => true,  // Ensures HttpOnly flag is set on session cookies
+
+
 ];
