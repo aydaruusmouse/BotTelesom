@@ -22,7 +22,6 @@ Route::redirect('/', '/admin');
 
 
 Route::get('/support', [CustomerSupportController::class, 'index'])->name('support.index');
-Route::post('/support/get-references', [CustomerSupportController::class, 'getReferences'])->name('support.getReferences');
 
 Route::get('/send-otp', [OtpController::class, 'showForm'])->name('otp.form');
 
