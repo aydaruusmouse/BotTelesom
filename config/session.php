@@ -215,12 +215,12 @@ return [
     'partitioned' => env('SESSION_PARTITIONED_COOKIE', false),
 
 
-'driver' => env('SESSION_DRIVER', 'cookie'),
-'lifetime' => env('SESSION_LIFETIME', 120),
-'expire_on_close' => false,
-'secure' => env('SESSION_SECURE_COOKIE', true),   // Set to true for HTTPS
-'http_only' => true,   // Ensures HttpOnly flag is set on session cookies
-'same_site' => env('SESSION_SAME_SITE', 'lax'),  // SameSite cookie policy
+// 'driver' => env('SESSION_DRIVER', 'cookie'),
+// 'lifetime' => env('SESSION_LIFETIME', 120),
+// 'expire_on_close' => false,
+// 'secure' => env('SESSION_SECURE_COOKIE', true),   // Set to true for HTTPS
+// 'http_only' => true,   // Ensures HttpOnly flag is set on session cookies
+// 'same_site' => env('SESSION_SAME_SITE', 'lax'),  // SameSite cookie policy
 
 
 ];
