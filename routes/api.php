@@ -14,16 +14,13 @@ use App\Http\Controllers\USSDController;
 use App\Http\Controllers\OtpController;
 use App\Http\Controllers\CustomerSupportController;
 
-
-Route::middleware('prevent-clickjacking')->group(function () {
-    Route::get('/admin', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
-
-    Route::get('/admin/auth/login', function () {
-        return view('auth.login');
-    })->name('admin.login');
-});
+// // Admin dashboard route with clickjacking prevention middleware
+// // Example of routes for API-specific actions
+// Route::prefix('admin')->middleware(['prevent-clickjacking'])->group(function () {
+//     Route::get('/auth/login', function () {
+//         return response()->json(['message' => 'Admin login for API']);
+//     })->name('admin.api.login');
+// });
 
 
 Route::post('/support/get-references', [CustomerSupportController::class, 'getReferences'])->name('support.getReferences');
