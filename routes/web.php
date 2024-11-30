@@ -11,7 +11,7 @@ use App\Http\Controllers\TroubleshootingController;
 use App\Http\Controllers\USSDController;
 use App\Http\Controllers\OtpController;
 use App\Http\Controllers\CustomerSupportController;
-
+use App\Http\Controllers\SubscriptionController;
 
 // Redirect root URL to /admin
 Route::redirect('/', '/admin');
@@ -49,6 +49,6 @@ Route::get('/sms-form', [SmsController::class, 'showForm'])->name('sms.form');
 Route::get('/exchange-rate', [ExchangeRateController::class, 'getExchangeRate'])->name('exchange.rate');
 
 // For testing with Blade template
-// Route::get('/subscription', function () {
-//     return view('subscription');
-// })->name('subscription');
+Route::get('/subscription', function () {
+    return view('subscription');
+})->name('subscription');
