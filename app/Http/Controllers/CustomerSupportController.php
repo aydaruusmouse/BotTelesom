@@ -47,7 +47,7 @@ class CustomerSupportController extends Controller
                 // Get the raw data
                 $data = $decodedResponse['Data'] ?? [];
                 if (!is_array($data)) {
-                    return response()->json(['error' => 'Unexpected API response structure', 'response' => $decodedResponse], 500);
+                    return response()->json([$decodedResponse], 500);
                 }
     
                 // Filter based on problem type and status
