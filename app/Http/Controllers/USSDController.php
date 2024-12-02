@@ -19,67 +19,72 @@ class USSDController extends Controller
     }
 
     public function initiateUssdSession(Request $request)
-    {
-        $msisdn = $this->cleanMsisdn($request->input('msisdn'));
+{
+    $msisdn = $this->cleanMsisdn($request->input('msisdn'));
 
-        // Validate MSISDN
-        if (empty($msisdn) || strlen($msisdn) < 10) {
-            return response()->json(['error' => 'Invalid MSISDN format'], 400);
-        }
-
-        // Generate the 12-digit session ID
-        $sessionId = $this->generateSessionId();
-        $imsi = '123';
-        $code = '*406#';
-        $service = '406';
-
-        // Perform the first cURL request with empty data
-        $response1 = Http::withHeaders([
-            'Content-Type' => 'application/json',
-        ])->post('http://172.16.53.109:8083/ussd-plus-plus/web/ussd-menu', [
-            'action' => 'continue',
-            'service' => $service,
-            'code' => $code,
-            'sessionid' => $sessionId,
-            'imsi' => $imsi,
-            'msisdn' => $msisdn,
-            'data' => '',  // Empty data for the first request
-        ]);
-
-        // Check if the first request was successful
-        if ($response1->failed()) {
-            return response()->json(['error' => 'Failed to initiate session'], 500);
-        }
-
-        // Now process the second cURL request with user data
-        $userData = $request->input('data'); // User input data (1, 2, 3, or 4)
-
-        // Ensure the user provided valid data (1, 2, 3, or 4)
-        if (!in_array($userData, ['1', '2', '3', '4'])) {
-            return response()->json(['error' => 'Invalid data input. Must be 1, 2, 3, or 4.'], 400);
-        }
-
-        // Perform the second cURL request with the user data
-        $response2 = Http::withHeaders([
-            'Content-Type' => 'application/json',
-        ])->post('http://172.16.53.109:8083/ussd-plus-plus/web/ussd-menu', [
-            'action' => 'continue',
-            'service' => $service,
-            'code' => $code,
-            'sessionid' => $sessionId,  // Same session ID as the first request
-            'imsi' => $imsi,
-            'msisdn' => $msisdn,
-            'data' => $userData,  // User-provided data
-        ]);
-
-        // Check if the second request was successful
-        if ($response2->failed()) {
-            return response()->json(['error' => 'Failed to continue session'], 500);
-        }
-
-        // Return the response from the second request (balance data)
-        return response()->json($response2->json());
+    // Validate MSISDN
+    if (empty($msisdn) || strlen($msisdn) < 10) {
+        return response()->json(['error' => 'Invalid MSISDN format'], 400);
     }
+
+    // Generate the 12-digit session ID
+    $sessionId = $this->generateSessionId();
+    $imsi = '123';
+    $code = '*406#';
+    $service = '406';
+
+    // Perform the first cURL request with empty data
+    $response1 = Http::withHeaders([
+        'Content-Type' => 'application/json',
+    ])->post('http://172.16.53.109:8083/ussd-plus-plus/web/ussd-menu', [
+        'action' => 'continue',
+        'service' => $service,
+        'code' => $code,
+        'sessionid' => $sessionId,
+        'imsi' => $imsi,
+        'msisdn' => $msisdn,
+        'data' => '',  // Empty data for the first request
+    ]);
+
+    if ($response1->failed()) {
+        return response()->json(['error' => 'Failed to initiate session'], 500);
+    }
+
+    $userData = $request->input('data'); // User input data (1, 2, 3, or 4)
+
+    if (!in_array($userData, ['1', '2', '3', '4'])) {
+        return response()->json(['error' => 'Invalid data input. Must be 1, 2, 3, or 4.'], 400);
+    }
+
+    $response2 = Http::withHeaders([
+        'Content-Type' => 'application/json',
+    ])->post('http://172.16.53.109:8083/ussd-plus-plus/web/ussd-menu', [
+        'action' => 'continue',
+        'service' => $service,
+        'code' => $code,
+        'sessionid' => $sessionId,
+        'imsi' => $imsi,
+        'msisdn' => $msisdn,
+        'data' => $userData,
+    ]);
+
+    if ($response2->failed()) {
+        return response()->json(['error' => 'Failed to continue session'], 500);
+    }
+
+    $responseData = $response2->json();
+
+    // Process the data to remove anything after the first line
+    $cleanedData = '';
+    if (isset($responseData['data'])) {
+        // Split by ".\n" and take the first part
+        $cleanedData = explode(".\n", $responseData['data'])[0] . '.';
+    }
+
+    // Return the processed response
+    return response()->json(['data' => $cleanedData]);
+}
+
 
     private function cleanMsisdn($msisdn)
     {
